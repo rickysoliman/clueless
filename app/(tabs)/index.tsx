@@ -1,98 +1,235 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useState } from "react";
+import {
+  ImageBackground,
+  Pressable,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+const landingPageBackground = require("../../assets/images/landing-page-background.png");
 
-export default function HomeScreen() {
+export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // logged in
+  if (isLoggedIn) {
+    return (
+      <SafeAreaView style={styles.loggedInScreen}>
+        <StatusBar barStyle="dark-content" />
+
+        <View style={styles.loggedInContent}>
+          <Text style={styles.loggedInTitle}>You’re logged in</Text>
+
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => setIsLoggedIn(false)}
+            style={({ pressed }) => [
+              styles.logoutButton,
+              pressed && styles.buttonPressed,
+            ]}
+          >
+            <Text style={styles.logoutButtonText}>Log out</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // logged out
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <ImageBackground
+      source={landingPageBackground}
+      resizeMode="cover"
+      style={styles.background}
+    >
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent
+      />
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      <View style={styles.overlay} />
+
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.content}>
+          <View style={styles.headingContainer}>
+            <Text style={styles.eyebrow}>YOUR DIGITAL WARDROBE</Text>
+
+            <Text style={styles.title}>Dress Me</Text>
+
+            <Text style={styles.subtitle}>
+              Build your wardrobe, create the perfect outfit, and see yourself
+              wearing it.
+            </Text>
+          </View>
+
+          <View style={styles.actions}>
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => setIsLoggedIn(true)}
+              style={({ pressed }) => [
+                styles.primaryButton,
+                pressed && styles.buttonPressed,
+              ]}
+            >
+              <Text style={styles.primaryButtonText}>Log In</Text>
+            </Pressable>
+
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => setIsLoggedIn(true)}
+              style={({ pressed }) => [
+                styles.secondaryButton,
+                pressed && styles.buttonPressed,
+              ]}
+            >
+              <Text style={styles.secondaryButtonText}>Create Account</Text>
+            </Pressable>
+          </View>
+        </View>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  background: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.42)",
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+
+  safeArea: {
+    flex: 1,
+  },
+
+  content: {
+    flex: 1,
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    paddingTop: 80,
+    paddingBottom: 40,
+  },
+
+  headingContainer: {
+    width: "100%",
+    maxWidth: 520,
+    alignItems: "center",
+  },
+
+  eyebrow: {
+    color: "#D9E5FF",
+    fontSize: 13,
+    fontWeight: "700",
+    letterSpacing: 3,
+    marginBottom: 16,
+    textAlign: "center",
+  },
+
+  title: {
+    color: "#FFFFFF",
+    fontSize: 46,
+    fontWeight: "800",
+    letterSpacing: 0.5,
+    textAlign: "center",
+    textShadowColor: "rgba(36, 105, 255, 0.9)",
+    textShadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    textShadowRadius: 14,
+  },
+
+  subtitle: {
+    color: "#F1F4FF",
+    fontSize: 17,
+    lineHeight: 25,
+    marginTop: 18,
+    maxWidth: 420,
+    textAlign: "center",
+  },
+
+  actions: {
+    width: "100%",
+    maxWidth: 380,
+  },
+
+  primaryButton: {
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 999,
+    justifyContent: "center",
+    minHeight: 56,
+    paddingHorizontal: 24,
+  },
+
+  primaryButtonText: {
+    color: "#0B0F1C",
+    fontSize: 17,
+    fontWeight: "700",
+  },
+
+  secondaryButton: {
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
+    borderColor: "rgba(255, 255, 255, 0.9)",
+    borderRadius: 999,
+    borderWidth: 1.5,
+    justifyContent: "center",
+    marginTop: 14,
+    minHeight: 56,
+    paddingHorizontal: 24,
+  },
+
+  secondaryButtonText: {
+    color: "#FFFFFF",
+    fontSize: 17,
+    fontWeight: "700",
+  },
+
+  buttonPressed: {
+    opacity: 0.75,
+    transform: [{ scale: 0.98 }],
+  },
+
+  loggedInScreen: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+  },
+
+  loggedInContent: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 24,
+  },
+
+  loggedInTitle: {
+    color: "#111111",
+    fontSize: 28,
+    fontWeight: "700",
+    marginBottom: 24,
+  },
+
+  logoutButton: {
+    backgroundColor: "#111111",
+    borderRadius: 999,
+    paddingHorizontal: 28,
+    paddingVertical: 15,
+  },
+
+  logoutButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "700",
   },
 });
