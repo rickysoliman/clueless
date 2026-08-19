@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  Alert,
   ImageBackground,
   Platform,
   Pressable,
@@ -31,13 +32,55 @@ type DummyWardrobeItem = {
   type: "top" | "bottom" | "outfit";
 };
 
+type MenuName = "file" | "closet" | "outfits" | "help";
+
+type WindowsMenuItemProps = {
+  label: string;
+  onPress?: () => void;
+  disabled?: boolean;
+};
+
+function WindowsMenuItem({
+  label,
+  onPress,
+  disabled = false,
+}: WindowsMenuItemProps) {
+  return (
+    <Pressable
+      accessibilityRole="menuitem"
+      disabled={disabled}
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.dropdownItem,
+        pressed && !disabled && styles.dropdownItemPressed,
+        disabled && styles.dropdownItemDisabled,
+      ]}
+    >
+      {({ pressed }) => (
+        <Text
+          style={[
+            styles.dropdownItemText,
+            pressed && !disabled && styles.dropdownItemTextPressed,
+            disabled && styles.dropdownItemTextDisabled,
+          ]}
+        >
+          {label}
+        </Text>
+      )}
+    </Pressable>
+  );
+}
+
 export default function HomePage({ onLogOut }: HomePageProps) {
-  // TABS: home, build, browse, add
+  // TABS:
   // Home (default)
   // Build (build a new outfit, aka "DRESS ME")
   // Browse (browse all clothing items in closet)
   // Add (add new clothing items to closet)
   const [tab, setTab] = useState("home");
+
+  // Windows 98 menu currently open.
+  const [activeMenu, setActiveMenu] = useState<MenuName | null>(null);
 
   const wardrobeItems = dummyData as DummyWardrobeItem[];
 
@@ -53,6 +96,36 @@ export default function HomePage({ onLogOut }: HomePageProps) {
 
   const wardrobeIsEmpty =
     topCount === 0 && bottomCount === 0 && outfitCount === 0;
+
+  function toggleMenu(menu: MenuName) {
+    setActiveMenu((currentMenu) => (currentMenu === menu ? null : menu));
+  }
+
+  function runMenuAction(action: () => void) {
+    setActiveMenu(null);
+    action();
+  }
+
+  function showHowItWorks() {
+    Alert.alert(
+      "How Cher AI Works",
+      "Add your clothes to your closet, mix and match a top and bottom, then use Dress Me to preview the finished outfit."
+    );
+  }
+
+  function showProfilePlaceholder() {
+    Alert.alert(
+      "Profile",
+      "The profile screen has not been built yet. This menu item is ready to connect when you add it."
+    );
+  }
+
+  function showAbout() {
+    Alert.alert(
+      "About Cher AI",
+      "Cher AI is your totally fabulous digital wardrobe for mixing, matching, and previewing outfits."
+    );
+  }
 
   if (tab === "home") {
     return (
@@ -98,11 +171,161 @@ export default function HomePage({ onLogOut }: HomePageProps) {
             </View>
 
             <View style={styles.menuBar}>
-              <Text style={styles.menuItem}>File</Text>
-              <Text style={styles.menuItem}>Closet</Text>
-              <Text style={styles.menuItem}>Outfit</Text>
-              <Text style={styles.menuItem}>Help</Text>
+              <View style={styles.menuItemContainer}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="File menu"
+                  onPress={() => toggleMenu("file")}
+                  style={[
+                    styles.menuButton,
+                    activeMenu === "file" && styles.menuButtonActive,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.menuItem,
+                      activeMenu === "file" && styles.menuItemActive,
+                    ]}
+                  >
+                    File
+                  </Text>
+                </Pressable>
+
+                {activeMenu === "file" && (
+                  <View style={styles.dropdownMenu}>
+                    <WindowsMenuItem
+                      label="Home"
+                      onPress={() => runMenuAction(() => setTab("home"))}
+                    />
+                    <WindowsMenuItem
+                      label="Add Clothing..."
+                      onPress={() => runMenuAction(() => setTab("add"))}
+                    />
+
+                    <View style={styles.menuSeparator} />
+
+                    <WindowsMenuItem
+                      label="Log Out"
+                      onPress={() => runMenuAction(onLogOut)}
+                    />
+                  </View>
+                )}
+              </View>
+
+              <View style={styles.menuItemContainer}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Closet menu"
+                  onPress={() => toggleMenu("closet")}
+                  style={[
+                    styles.menuButton,
+                    activeMenu === "closet" && styles.menuButtonActive,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.menuItem,
+                      activeMenu === "closet" && styles.menuItemActive,
+                    ]}
+                  >
+                    Closet
+                  </Text>
+                </Pressable>
+
+                {activeMenu === "closet" && (
+                  <View style={styles.dropdownMenu}>
+                    <WindowsMenuItem
+                      label="Browse Closet"
+                      onPress={() => runMenuAction(() => setTab("browse"))}
+                    />
+                    <WindowsMenuItem
+                      label="Add Clothing..."
+                      onPress={() => runMenuAction(() => setTab("add"))}
+                    />
+                  </View>
+                )}
+              </View>
+
+              <View style={styles.menuItemContainer}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Outfits menu"
+                  onPress={() => toggleMenu("outfits")}
+                  style={[
+                    styles.menuButton,
+                    activeMenu === "outfits" && styles.menuButtonActive,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.menuItem,
+                      activeMenu === "outfits" && styles.menuItemActive,
+                    ]}
+                  >
+                    Outfits
+                  </Text>
+                </Pressable>
+
+                {activeMenu === "outfits" && (
+                  <View style={styles.dropdownMenu}>
+                    <WindowsMenuItem
+                      label="Build Outfit..."
+                      onPress={() => runMenuAction(() => setTab("build"))}
+                    />
+                    <WindowsMenuItem label="Browse Saved Outfits" disabled />
+                  </View>
+                )}
+              </View>
+
+              <View style={styles.menuItemContainer}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Help menu"
+                  onPress={() => toggleMenu("help")}
+                  style={[
+                    styles.menuButton,
+                    activeMenu === "help" && styles.menuButtonActive,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.menuItem,
+                      activeMenu === "help" && styles.menuItemActive,
+                    ]}
+                  >
+                    Help
+                  </Text>
+                </Pressable>
+
+                {activeMenu === "help" && (
+                  <View style={[styles.dropdownMenu, styles.dropdownMenuRight]}>
+                    <WindowsMenuItem
+                      label="How Cher AI Works"
+                      onPress={() => runMenuAction(showHowItWorks)}
+                    />
+                    <WindowsMenuItem
+                      label="Profile"
+                      onPress={() => runMenuAction(showProfilePlaceholder)}
+                    />
+
+                    <View style={styles.menuSeparator} />
+
+                    <WindowsMenuItem
+                      label="About Cher AI"
+                      onPress={() => runMenuAction(showAbout)}
+                    />
+                  </View>
+                )}
+              </View>
             </View>
+
+            {activeMenu !== null && (
+              <Pressable
+                accessibilityLabel="Close menu"
+                onPress={() => setActiveMenu(null)}
+                style={styles.menuDismissLayer}
+              />
+            )}
 
             <ScrollView
               style={styles.scrollView}
@@ -290,6 +513,7 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 640,
     alignSelf: "center",
+    position: "relative",
     backgroundColor: "#C0C0C0",
     borderWidth: 3,
     borderTopColor: "#FFFFFF",
@@ -306,6 +530,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#000080",
     paddingLeft: 6,
     paddingRight: 3,
+    zIndex: 30,
   },
 
   titleBarText: {
@@ -364,10 +589,32 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#C0C0C0",
-    paddingHorizontal: 8,
-    gap: 18,
+    paddingHorizontal: 4,
     borderBottomWidth: 1,
     borderBottomColor: "#808080",
+    zIndex: 40,
+    overflow: "visible",
+  },
+
+  menuItemContainer: {
+    position: "relative",
+    height: "100%",
+    justifyContent: "center",
+    marginRight: 2,
+    zIndex: 50,
+  },
+
+  menuButton: {
+    minHeight: 24,
+    justifyContent: "center",
+    paddingHorizontal: 7,
+    borderWidth: 1,
+    borderColor: "transparent",
+  },
+
+  menuButtonActive: {
+    backgroundColor: "#000080",
+    borderColor: "#000080",
   },
 
   menuItem: {
@@ -376,9 +623,85 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
 
+  menuItemActive: {
+    color: "#FFFFFF",
+  },
+
+  dropdownMenu: {
+    position: "absolute",
+    top: 28,
+    left: 0,
+    width: 190,
+    backgroundColor: "#C0C0C0",
+    borderWidth: 2,
+    borderTopColor: "#FFFFFF",
+    borderLeftColor: "#FFFFFF",
+    borderRightColor: "#000000",
+    borderBottomColor: "#000000",
+    padding: 2,
+    zIndex: 100,
+    elevation: 20,
+  },
+
+  dropdownMenuRight: {
+    left: undefined,
+    right: 0,
+  },
+
+  dropdownItem: {
+    minHeight: 28,
+    justifyContent: "center",
+    paddingHorizontal: 18,
+  },
+
+  dropdownItemPressed: {
+    backgroundColor: "#000080",
+  },
+
+  dropdownItemDisabled: {
+    backgroundColor: "#C0C0C0",
+  },
+
+  dropdownItemText: {
+    color: "#000000",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 12,
+  },
+
+  dropdownItemTextPressed: {
+    color: "#FFFFFF",
+  },
+
+  dropdownItemTextDisabled: {
+    color: "#808080",
+    textShadowColor: "#FFFFFF",
+    textShadowOffset: {
+      width: 1,
+      height: 1,
+    },
+    textShadowRadius: 0,
+  },
+
+  menuSeparator: {
+    height: 2,
+    marginVertical: 3,
+    marginHorizontal: 2,
+    borderTopWidth: 1,
+    borderTopColor: "#808080",
+    borderBottomWidth: 1,
+    borderBottomColor: "#FFFFFF",
+  },
+
+  menuDismissLayer: {
+    ...StyleSheet.absoluteFillObject,
+    top: 60,
+    zIndex: 20,
+  },
+
   scrollView: {
     flex: 1,
     backgroundColor: "#C0C0C0",
+    zIndex: 1,
   },
 
   content: {
