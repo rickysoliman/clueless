@@ -3,10 +3,10 @@ import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 
 const screensaverVideo = require("../assets/videos/screensaver-loop.mp4");
 
-const RETRO_FONT = Platform.select({
-  ios: "Courier New",
-  android: "monospace",
-  default: "monospace",
+const WINDOWS_FONT = Platform.select({
+  ios: "Arial",
+  android: "sans-serif",
+  default: "Arial",
 });
 
 type LandingPageProps = {
@@ -34,21 +34,39 @@ export default function LandingPage({
       />
 
       <View style={styles.patternArea}>
-        <View style={styles.loginPanel}>
-          <View style={styles.panelHeader}>
-            <Text style={styles.panelHeaderText}>YOUR DIGITAL WARDROBE</Text>
+        <View style={styles.window}>
+          <View style={styles.titleBar}>
+            <Text numberOfLines={1} style={styles.titleBarText}>
+              Cher AI
+            </Text>
+
+            <View style={styles.windowControls}>
+              <View style={styles.windowControlButton}>
+                <Text style={styles.minimizeSymbol}>_</Text>
+              </View>
+
+              <View style={styles.windowControlButton}>
+                <Text style={styles.maximizeSymbol}>□</Text>
+              </View>
+
+              <View style={styles.windowControlButton}>
+                <Text style={styles.closeSymbol}>×</Text>
+              </View>
+            </View>
           </View>
 
-          <View style={styles.panelBody}>
-            <Text style={styles.eyebrow}>WELCOME TO</Text>
+          <View style={styles.windowBody}>
+            <Text style={styles.welcomeText}>Welcome to</Text>
 
-            <Text style={styles.title}>CHER AI</Text>
+            <Text style={styles.appTitle}>CHER AI</Text>
 
-            <View style={styles.divider} />
+            <View style={styles.separator} />
 
             <Text style={styles.subtitle}>
-              MIX, MATCH, AND LOOK{" "}
-              <Text style={styles.emphasis}>FABULOUS!</Text> OBVIOUSLY!
+              Your very own digital wardrobe where you can mix, match, and look{" "}
+              <Text style={styles.emphasis}>FABULOUS!</Text>
+              {"\n"}
+              Obviously!
             </Text>
 
             <View style={styles.actions}>
@@ -57,12 +75,11 @@ export default function LandingPage({
                 accessibilityLabel="Log in"
                 onPress={onLogIn}
                 style={({ pressed }) => [
-                  styles.retroButton,
-                  styles.primaryButton,
-                  pressed && styles.buttonPressed,
+                  styles.windowsButton,
+                  pressed && styles.windowsButtonPressed,
                 ]}
               >
-                <Text style={styles.primaryButtonText}>LOG IN</Text>
+                <Text style={styles.buttonText}>Log In</Text>
               </Pressable>
 
               <Pressable
@@ -70,12 +87,11 @@ export default function LandingPage({
                 accessibilityLabel="Create an account"
                 onPress={onCreateAccount}
                 style={({ pressed }) => [
-                  styles.retroButton,
-                  styles.secondaryButton,
-                  pressed && styles.buttonPressed,
+                  styles.windowsButton,
+                  pressed && styles.windowsButtonPressed,
                 ]}
               >
-                <Text style={styles.secondaryButtonText}>CREATE ACCOUNT</Text>
+                <Text style={styles.buttonText}>Create Account</Text>
               </Pressable>
             </View>
           </View>
@@ -104,193 +120,215 @@ const styles = StyleSheet.create({
   patternArea: {
     flex: 1,
     justifyContent: "center",
-    paddingHorizontal: 18,
+    paddingHorizontal: 24,
     paddingVertical: 20,
-    zIndex: 2,
   },
 
-  loginPanel: {
+  /*
+   * Classic Windows 98 outer dialog frame.
+   *
+   * Bright top/left borders + dark bottom/right borders
+   * create the raised 3D appearance.
+   */
+  window: {
     width: "100%",
-    maxWidth: 480,
+    maxWidth: 390,
     alignSelf: "center",
-    backgroundColor: "#AEBEDB",
 
-    borderWidth: 5,
-    borderTopColor: "#EDF2FF",
-    borderLeftColor: "#EDF2FF",
-    borderRightColor: "#30364D",
-    borderBottomColor: "#30364D",
+    backgroundColor: "#C0C0C0",
 
-    shadowColor: "#090914",
-    shadowOffset: {
-      width: 7,
-      height: 8,
-    },
-    shadowOpacity: 0.65,
-    shadowRadius: 0,
+    borderWidth: 3,
+    borderTopColor: "#FFFFFF",
+    borderLeftColor: "#FFFFFF",
+    borderRightColor: "#000000",
+    borderBottomColor: "#000000",
 
-    elevation: 12,
+    padding: 3,
   },
 
-  panelHeader: {
-    minHeight: 42,
+  titleBar: {
+    height: 30,
+
+    flexDirection: "row",
+    alignItems: "center",
+
+    backgroundColor: "#000080",
+
+    paddingLeft: 6,
+    paddingRight: 3,
+  },
+
+  titleBarText: {
+    flex: 1,
+
+    color: "#FFFFFF",
+
+    fontFamily: WINDOWS_FONT,
+    fontSize: 15,
+    fontWeight: "700",
+  },
+
+  windowControls: {
+    flexDirection: "row",
+    gap: 2,
+  },
+
+  windowControlButton: {
+    width: 22,
+    height: 22,
+
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#18182A",
-    borderBottomWidth: 4,
-    borderBottomColor: "#4B5270",
-    paddingHorizontal: 12,
+
+    backgroundColor: "#C0C0C0",
+
+    borderWidth: 2,
+    borderTopColor: "#FFFFFF",
+    borderLeftColor: "#FFFFFF",
+    borderRightColor: "#404040",
+    borderBottomColor: "#404040",
   },
 
-  panelHeaderText: {
-    color: "#D5DAFF",
-    fontFamily: RETRO_FONT,
-    fontSize: 12,
+  minimizeSymbol: {
+    color: "#000000",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 14,
+    fontWeight: "900",
+    lineHeight: 15,
+    marginTop: -2,
+  },
+
+  maximizeSymbol: {
+    color: "#000000",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 13,
     fontWeight: "700",
-    letterSpacing: 1.7,
-    textAlign: "center",
-
-    textShadowColor: "#5068FF",
-    textShadowOffset: {
-      width: 1,
-      height: 1,
-    },
-    textShadowRadius: 4,
+    lineHeight: 15,
   },
 
-  panelBody: {
+  closeSymbol: {
+    color: "#000000",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 17,
+    fontWeight: "700",
+    lineHeight: 18,
+  },
+
+  windowBody: {
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 28,
-    paddingBottom: 24,
+
+    backgroundColor: "#C0C0C0",
+
+    paddingHorizontal: 22,
+    paddingTop: 26,
+    paddingBottom: 22,
   },
 
-  eyebrow: {
-    color: "#34384E",
-    fontFamily: RETRO_FONT,
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 2.5,
+  welcomeText: {
+    color: "#000000",
+
+    fontFamily: WINDOWS_FONT,
+    fontSize: 13,
+
     textAlign: "center",
   },
 
-  title: {
-    color: "#161725",
-    fontFamily: RETRO_FONT,
-    fontSize: 40,
-    fontWeight: "700",
-    letterSpacing: 4,
-    marginTop: 8,
-    textAlign: "center",
+  appTitle: {
+    color: "#000000",
 
-    textShadowColor: "#F2F5FF",
-    textShadowOffset: {
-      width: 2,
-      height: 2,
-    },
-    textShadowRadius: 0,
+    fontFamily: WINDOWS_FONT,
+    fontSize: 34,
+    fontWeight: "700",
+
+    marginTop: 7,
+
+    textAlign: "center",
   },
 
-  divider: {
-    width: "76%",
-    height: 4,
-    backgroundColor: "#3C425D",
+  /*
+   * Mimics an inset Windows 98 separator.
+   */
+  separator: {
+    width: "90%",
+    height: 2,
+
+    marginTop: 18,
+    marginBottom: 18,
 
     borderTopWidth: 1,
-    borderTopColor: "#F0F4FF",
+    borderTopColor: "#808080",
 
-    marginTop: 16,
-    marginBottom: 17,
+    borderBottomWidth: 1,
+    borderBottomColor: "#FFFFFF",
   },
 
   subtitle: {
-    maxWidth: 380,
-    color: "#25283A",
-    fontFamily: RETRO_FONT,
-    fontSize: 13,
-    fontWeight: "700",
-    lineHeight: 22,
-    letterSpacing: 0.7,
+    maxWidth: 310,
+
+    color: "#000000",
+
+    fontFamily: WINDOWS_FONT,
+    fontSize: 14,
+    lineHeight: 21,
+
     textAlign: "center",
   },
 
   emphasis: {
-    fontSize: 20,
-    fontWeight: "900",
+    fontWeight: "700",
   },
 
   actions: {
     width: "100%",
-    maxWidth: 340,
-    marginTop: 24,
+
+    flexDirection: "row",
+
+    gap: 12,
+
+    marginTop: 28,
   },
 
-  retroButton: {
-    minHeight: 58,
+  /*
+   * Classic raised Windows button.
+   */
+  windowsButton: {
+    flex: 1,
+
+    minHeight: 38,
+
     alignItems: "center",
     justifyContent: "center",
 
-    borderWidth: 4,
-    borderTopColor: "#F5F4FF",
-    borderLeftColor: "#F5F4FF",
-    borderRightColor: "#151521",
-    borderBottomColor: "#151521",
+    backgroundColor: "#C0C0C0",
 
-    borderRadius: 2,
-    paddingHorizontal: 18,
+    borderWidth: 2,
 
-    shadowColor: "#171723",
-    shadowOffset: {
-      width: 4,
-      height: 5,
-    },
-    shadowOpacity: 0.55,
-    shadowRadius: 0,
+    borderTopColor: "#FFFFFF",
+    borderLeftColor: "#FFFFFF",
 
-    elevation: 7,
+    borderRightColor: "#404040",
+    borderBottomColor: "#404040",
+
+    paddingHorizontal: 8,
   },
 
-  primaryButton: {
-    backgroundColor: "#293CE0",
+  buttonText: {
+    color: "#000000",
+
+    fontFamily: WINDOWS_FONT,
+    fontSize: 13,
   },
 
-  primaryButtonText: {
-    color: "#FFFFFF",
-    fontFamily: RETRO_FONT,
-    fontSize: 17,
-    fontWeight: "700",
-    letterSpacing: 2,
+  /*
+   * Simulates the button physically depressing.
+   */
+  windowsButtonPressed: {
+    borderTopColor: "#404040",
+    borderLeftColor: "#404040",
 
-    textShadowColor: "#111228",
-    textShadowOffset: {
-      width: 2,
-      height: 2,
-    },
-    textShadowRadius: 0,
-  },
+    borderRightColor: "#FFFFFF",
+    borderBottomColor: "#FFFFFF",
 
-  secondaryButton: {
-    backgroundColor: "#AAA9B3",
-    marginTop: 13,
-  },
-
-  secondaryButtonText: {
-    color: "#171721",
-    fontFamily: RETRO_FONT,
-    fontSize: 15,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-
-    textShadowColor: "#ECECF4",
-    textShadowOffset: {
-      width: 1,
-      height: 1,
-    },
-    textShadowRadius: 0,
-  },
-
-  buttonPressed: {
-    opacity: 0.86,
-    transform: [{ translateX: 2 }, { translateY: 2 }],
+    transform: [{ translateX: 1 }, { translateY: 1 }],
   },
 });
