@@ -25,6 +25,8 @@ const WINDOWS_FONT = Platform.select({
 type BuildOutfitPageProps = {
   onBack: () => void;
   onBrowseCloset?: () => void;
+  initialTopId?: string;
+  initialBottomId?: string;
 };
 
 type GenerateOutfitResponse = {
@@ -73,6 +75,8 @@ async function requestGeneratedOutfit(
 export default function BuildOutfitPage({
   onBack,
   onBrowseCloset,
+  initialTopId,
+  initialBottomId,
 }: BuildOutfitPageProps) {
   const tops = useMemo(
     () => dummyData.filter((item) => item.type === "top"),
@@ -84,8 +88,23 @@ export default function BuildOutfitPage({
     []
   );
 
-  const [selectedTopIndex, setSelectedTopIndex] = useState(0);
-  const [selectedBottomIndex, setSelectedBottomIndex] = useState(0);
+  const initialTopIndex = initialTopId
+    ? Math.max(
+        tops.findIndex((item) => item.id === initialTopId),
+        0
+      )
+    : 0;
+
+  const initialBottomIndex = initialBottomId
+    ? Math.max(
+        bottoms.findIndex((item) => item.id === initialBottomId),
+        0
+      )
+    : 0;
+
+  const [selectedTopIndex, setSelectedTopIndex] = useState(initialTopIndex);
+  const [selectedBottomIndex, setSelectedBottomIndex] =
+    useState(initialBottomIndex);
   const [generatedImageUri, setGeneratedImageUri] = useState<string | null>(
     null
   );

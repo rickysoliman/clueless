@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { dummyData } from "../assets/dummy-data/dummy-data";
 import AddClothingPage from "./add-clothing-page";
-import BrowseClosetPage from "./browse-closet-page";
+import BrowseClosetPage, { type ClosetSelection } from "./browse-closet-page";
 import BuildOutfitPage from "./build-outfit-page";
 
 const leopardPrintBackground = require("../assets/images/leopard-print-background.png");
@@ -72,15 +72,14 @@ function WindowsMenuItem({
 }
 
 export default function HomePage({ onLogOut }: HomePageProps) {
-  // TABS:
-  // Home (default)
-  // Build (build a new outfit, aka "DRESS ME")
-  // Browse (browse all clothing items in closet)
-  // Add (add new clothing items to closet)
+  // TABS: home, build, browse, add
   const [tab, setTab] = useState("home");
 
   // Windows 98 menu currently open.
   const [activeMenu, setActiveMenu] = useState<MenuName | null>(null);
+
+  // Optional selection passed from Browse Closet into Build Outfit.
+  const [buildSelection, setBuildSelection] = useState<ClosetSelection>({});
 
   const wardrobeItems = dummyData as DummyWardrobeItem[];
 
@@ -104,6 +103,11 @@ export default function HomePage({ onLogOut }: HomePageProps) {
   function runMenuAction(action: () => void) {
     setActiveMenu(null);
     action();
+  }
+
+  function openBuildOutfit(selection: ClosetSelection = {}) {
+    setBuildSelection(selection);
+    setTab("build");
   }
 
   function showHowItWorks() {
@@ -270,7 +274,7 @@ export default function HomePage({ onLogOut }: HomePageProps) {
                   <View style={styles.dropdownMenu}>
                     <WindowsMenuItem
                       label="Build Outfit..."
-                      onPress={() => runMenuAction(() => setTab("build"))}
+                      onPress={() => runMenuAction(() => openBuildOutfit())}
                     />
                     <WindowsMenuItem label="Browse Saved Outfits" disabled />
                   </View>
@@ -379,7 +383,7 @@ export default function HomePage({ onLogOut }: HomePageProps) {
                       <Pressable
                         accessibilityRole="button"
                         accessibilityLabel="Build an outfit"
-                        onPress={() => setTab("build")}
+                        onPress={() => openBuildOutfit()}
                         style={({ pressed }) => [
                           styles.windowsButton,
                           styles.heroButton,
@@ -468,17 +472,18 @@ export default function HomePage({ onLogOut }: HomePageProps) {
       <BuildOutfitPage
         onBack={() => setTab("home")}
         onBrowseCloset={() => setTab("browse")}
+        initialTopId={buildSelection.topId}
+        initialBottomId={buildSelection.bottomId}
       />
     );
   }
 
   if (tab === "browse") {
     return (
-      <View style={styles.childPage}>
-        <Pressable onPress={() => setTab("home")}>
-          <BrowseClosetPage />
-        </Pressable>
-      </View>
+      <BrowseClosetPage
+        onBack={() => setTab("home")}
+        onBuildOutfit={(selection) => openBuildOutfit(selection)}
+      />
     );
   }
 
