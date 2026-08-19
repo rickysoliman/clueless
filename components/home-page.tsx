@@ -9,6 +9,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { dummyData } from "../assets/dummy-data/dummy-data";
 
 const leopardPrintBackground = require("../assets/images/leopard-print-background.png");
 
@@ -46,6 +47,8 @@ export default function HomePage({
   onBuildOutfit = () => undefined,
   onAddClothing = () => undefined,
 }: HomePageProps) {
+  console.log({ dummyData });
+
   return (
     <SafeAreaView style={styles.screen}>
       <StatusBar barStyle="light-content" backgroundColor="#171521" />
