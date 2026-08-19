@@ -243,7 +243,10 @@ export default function HomePage({ onLogOut }: HomePageProps) {
         }}
       >
         <Pressable onPress={() => setTab("home")}>
-          <BuildOutfitPage></BuildOutfitPage>
+          <BuildOutfitPage
+            onBack={() => setTab("home")}
+            onBrowseCloset={() => setTab("browse")}
+          />
         </Pressable>
       </View>
     );
