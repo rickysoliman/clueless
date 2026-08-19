@@ -9,10 +9,10 @@ import {
 } from "react-native";
 import type { WardrobeItem } from "../assets/dummy-data/dummy-data";
 
-const RETRO_FONT = Platform.select({
-  ios: "Courier New",
-  android: "monospace",
-  default: "monospace",
+const WINDOWS_FONT = Platform.select({
+  ios: "Arial",
+  android: "sans-serif",
+  default: "Arial",
 });
 
 type CarouselProps = {
@@ -42,116 +42,147 @@ export default function Carousel({
   }
 
   return (
-    <View style={styles.wrapper}>
-      <View style={styles.titleBar}>
-        <Text style={styles.title}>{title}</Text>
+    <View style={styles.groupBox}>
+      <View style={styles.groupLabelBackground}>
+        <Text style={styles.groupLabel}>{title}</Text>
+      </View>
 
-        {items.length > 0 && (
-          <Text style={styles.counter}>
-            {selectedIndex + 1}/{items.length}
+      <View style={styles.innerPanel}>
+        <View style={styles.itemBar}>
+          <Text numberOfLines={1} style={styles.itemName}>
+            {selectedItem?.name ?? `No ${title.toLowerCase()} found`}
           </Text>
-        )}
-      </View>
 
-      <View style={styles.imageWindow}>
-        {selectedItem ? (
-          <Image
-            source={selectedItem.catalogPhotos.front}
-            resizeMode="contain"
-            style={styles.image}
-          />
-        ) : (
-          <View style={styles.placeholder}>
-            <Text style={styles.placeholderName}>NO {title} FOUND</Text>
-          </View>
-        )}
-      </View>
+          {items.length > 0 && (
+            <Text style={styles.counter}>
+              {selectedIndex + 1} of {items.length}
+            </Text>
+          )}
+        </View>
 
-      <View style={styles.controls}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`Previous ${title.toLowerCase()}`}
-          disabled={items.length < 2}
-          onPress={() => moveBy(-1)}
-          style={({ pressed }) => [
-            styles.controlButton,
-            pressed && styles.buttonPressed,
-            items.length < 2 && styles.disabledButton,
-          ]}
-        >
-          <Text style={styles.controlText}>{"<<"}</Text>
-        </Pressable>
+        <View style={styles.imageWindow}>
+          {selectedItem ? (
+            <Image
+              source={selectedItem.catalogPhotos.front}
+              resizeMode="contain"
+              style={styles.image}
+            />
+          ) : (
+            <View style={styles.placeholder}>
+              <Text style={styles.placeholderName}>
+                No {title.toLowerCase()} found.
+              </Text>
+            </View>
+          )}
+        </View>
 
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`Next ${title.toLowerCase()}`}
-          disabled={items.length < 2}
-          onPress={() => moveBy(1)}
-          style={({ pressed }) => [
-            styles.controlButton,
-            pressed && styles.buttonPressed,
-            items.length < 2 && styles.disabledButton,
-          ]}
-        >
-          <Text style={styles.playText}>{"▶"}</Text>
-        </Pressable>
+        <View style={styles.controls}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Previous ${title.toLowerCase()}`}
+            disabled={items.length < 2}
+            onPress={() => moveBy(-1)}
+            style={({ pressed }) => [
+              styles.controlButton,
+              pressed && styles.buttonPressed,
+              items.length < 2 && styles.disabledButton,
+            ]}
+          >
+            <Text style={styles.controlText}>{"<<"}</Text>
+          </Pressable>
 
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`Next ${title.toLowerCase()}`}
-          disabled={items.length < 2}
-          onPress={() => moveBy(1)}
-          style={({ pressed }) => [
-            styles.controlButton,
-            pressed && styles.buttonPressed,
-            items.length < 2 && styles.disabledButton,
-          ]}
-        >
-          <Text style={styles.controlText}>{">>"}</Text>
-        </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Next ${title.toLowerCase()}`}
+            disabled={items.length < 2}
+            onPress={() => moveBy(1)}
+            style={({ pressed }) => [
+              styles.controlButton,
+              pressed && styles.buttonPressed,
+              items.length < 2 && styles.disabledButton,
+            ]}
+          >
+            <Text style={styles.playText}>{"▶"}</Text>
+          </Pressable>
+
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Next ${title.toLowerCase()}`}
+            disabled={items.length < 2}
+            onPress={() => moveBy(1)}
+            style={({ pressed }) => [
+              styles.controlButton,
+              pressed && styles.buttonPressed,
+              items.length < 2 && styles.disabledButton,
+            ]}
+          >
+            <Text style={styles.controlText}>{">>"}</Text>
+          </Pressable>
+        </View>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
+  groupBox: {
     flex: 1,
     minHeight: 0,
     width: "100%",
-    overflow: "hidden",
-    backgroundColor: "#11121E",
-    borderWidth: 2,
-    borderColor: "#202237",
+    position: "relative",
+    backgroundColor: "#C0C0C0",
+    borderWidth: 1,
+    borderTopColor: "#808080",
+    borderLeftColor: "#808080",
+    borderRightColor: "#FFFFFF",
+    borderBottomColor: "#FFFFFF",
+    paddingHorizontal: 8,
+    paddingTop: 14,
+    paddingBottom: 8,
   },
 
-  titleBar: {
-    height: 28,
+  groupLabelBackground: {
+    position: "absolute",
+    top: -9,
+    left: 10,
+    zIndex: 2,
+    backgroundColor: "#C0C0C0",
+    paddingHorizontal: 4,
+  },
+
+  groupLabel: {
+    color: "#000000",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 12,
+  },
+
+  innerPanel: {
+    flex: 1,
+    minHeight: 0,
+  },
+
+  itemBar: {
+    height: 24,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#17172A",
-    borderBottomWidth: 2,
-    borderBottomColor: "#59618A",
-    paddingHorizontal: 10,
+    backgroundColor: "#000080",
+    paddingHorizontal: 7,
   },
 
-  title: {
-    color: "#D8DEFF",
-    fontFamily: RETRO_FONT,
-    fontSize: 9,
+  itemName: {
+    flex: 1,
+    color: "#FFFFFF",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 11,
     fontWeight: "700",
-    letterSpacing: 1.5,
-    textShadowColor: "#526BFF",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 3,
   },
 
   counter: {
-    color: "#B5BFF2",
-    fontFamily: RETRO_FONT,
-    fontSize: 8,
-    fontWeight: "700",
+    color: "#FFFFFF",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 10,
+    marginLeft: 8,
   },
 
   imageWindow: {
@@ -160,7 +191,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
-    backgroundColor: "#ffffff",
+    backgroundColor: "#FFFFFF",
+    borderWidth: 2,
+    borderTopColor: "#808080",
+    borderLeftColor: "#808080",
+    borderRightColor: "#FFFFFF",
+    borderBottomColor: "#FFFFFF",
   },
 
   image: {
@@ -170,66 +206,62 @@ const styles = StyleSheet.create({
 
   placeholder: {
     width: "88%",
-    height: "72%",
+    height: "70%",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#C2CCE2",
-    borderWidth: 1,
-    borderColor: "#7E88A2",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 12,
   },
 
   placeholderName: {
-    color: "#171824",
-    fontFamily: RETRO_FONT,
+    color: "#000000",
+    fontFamily: WINDOWS_FONT,
     fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 0.8,
     textAlign: "center",
   },
 
   controls: {
-    height: 36,
+    height: 38,
     flexDirection: "row",
-    backgroundColor: "#11121E",
-    borderTopWidth: 2,
-    borderTopColor: "#202237",
-    padding: 4,
-    gap: 4,
+    gap: 6,
+    backgroundColor: "#C0C0C0",
+    paddingTop: 5,
   },
 
   controlButton: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#A7A7B0",
-    borderWidth: 1,
-    borderTopColor: "#F1F1F6",
-    borderLeftColor: "#F1F1F6",
-    borderRightColor: "#52525B",
-    borderBottomColor: "#52525B",
+    backgroundColor: "#C0C0C0",
+    borderWidth: 2,
+    borderTopColor: "#FFFFFF",
+    borderLeftColor: "#FFFFFF",
+    borderRightColor: "#404040",
+    borderBottomColor: "#404040",
   },
 
   controlText: {
-    color: "#171720",
-    fontFamily: RETRO_FONT,
-    fontSize: 14,
+    color: "#000000",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 13,
     fontWeight: "700",
-    letterSpacing: -1,
   },
 
   playText: {
-    color: "#171720",
+    color: "#000000",
     fontSize: 12,
     fontWeight: "700",
   },
 
   disabledButton: {
-    opacity: 0.4,
+    opacity: 0.45,
   },
 
   buttonPressed: {
-    opacity: 0.82,
+    borderTopColor: "#404040",
+    borderLeftColor: "#404040",
+    borderRightColor: "#FFFFFF",
+    borderBottomColor: "#FFFFFF",
     transform: [{ translateX: 1 }, { translateY: 1 }],
   },
 });

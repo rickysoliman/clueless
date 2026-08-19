@@ -16,10 +16,10 @@ import Carousel from "./carousel";
 
 const leopardPrintBackground = require("../assets/images/leopard-print-background.png");
 
-const RETRO_FONT = Platform.select({
-  ios: "Courier New",
-  android: "monospace",
-  default: "monospace",
+const WINDOWS_FONT = Platform.select({
+  ios: "Arial",
+  android: "sans-serif",
+  default: "Arial",
 });
 
 type BuildOutfitPageProps = {
@@ -96,6 +96,7 @@ export default function BuildOutfitPage({
   const selectedBottom = bottoms[selectedBottomIndex];
 
   const canGenerate = Boolean(selectedTop && selectedBottom && !isGenerating);
+
   const showingResult =
     isGenerating || Boolean(generatedImageUri) || Boolean(generationError);
 
@@ -132,266 +133,328 @@ export default function BuildOutfitPage({
   }
 
   return (
-    <SafeAreaView style={styles.screen}>
-      <StatusBar barStyle="light-content" backgroundColor="#11111E" />
+    <ImageBackground
+      source={leopardPrintBackground}
+      resizeMode="cover"
+      style={styles.background}
+    >
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent
+      />
 
-      <ImageBackground
-        source={leopardPrintBackground}
-        resizeMode="cover"
-        style={styles.background}
-      >
-        <View style={styles.topBar}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Go back"
-            onPress={onBack}
-            style={({ pressed }) => [
-              styles.headerButton,
-              pressed && styles.buttonPressed,
-            ]}
-          >
-            <Text style={styles.headerButtonText}>{"< BACK"}</Text>
-          </Pressable>
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.window}>
+          <View style={styles.titleBar}>
+            <Text numberOfLines={1} style={styles.titleBarText}>
+              Cher AI - Build Outfit
+            </Text>
 
-          <Text numberOfLines={1} style={styles.brand}>
-            BUILD OUTFIT
-          </Text>
+            <View style={styles.windowControls}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Go back"
+                onPress={onBack}
+                style={({ pressed }) => [
+                  styles.windowControlButton,
+                  pressed && styles.windowsButtonPressed,
+                ]}
+              >
+                <Text style={styles.minimizeSymbol}>_</Text>
+              </Pressable>
 
-          <View style={styles.modeLabel}>
-            <Text style={styles.modeLabelText}>MIX + MATCH</Text>
+              <View style={styles.windowControlButton}>
+                <Text style={styles.maximizeSymbol}>□</Text>
+              </View>
+
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Close build outfit"
+                onPress={onBack}
+                style={({ pressed }) => [
+                  styles.windowControlButton,
+                  pressed && styles.windowsButtonPressed,
+                ]}
+              >
+                <Text style={styles.closeSymbol}>×</Text>
+              </Pressable>
+            </View>
           </View>
-        </View>
 
-        <View style={styles.content}>
-          {showingResult ? (
-            <View style={styles.resultPanel}>
-              <View style={styles.resultHeader}>
-                <Text style={styles.resultHeaderText}>
-                  {isGenerating
-                    ? "CREATING YOUR LOOK"
-                    : generationError
-                    ? "GENERATION ERROR"
-                    : "YOUR LOOK"}
-                </Text>
-              </View>
+          <View style={styles.menuBar}>
+            <Text style={styles.menuItem}>File</Text>
+            <Text style={styles.menuItem}>Closet</Text>
+            <Text style={styles.menuItem}>Outfit</Text>
+            <Text style={styles.menuItem}>Help</Text>
+          </View>
 
-              <View style={styles.resultBody}>
-                {isGenerating ? (
-                  <>
-                    <ActivityIndicator size="large" />
-                    <Text style={styles.resultStatus}>
-                      GENERATING YOUR OUTFIT...
-                    </Text>
-                    <Text style={styles.resultHint}>
-                      MATCHING YOUR SELECTED TOP + BOTTOM.
-                    </Text>
-                  </>
-                ) : generationError ? (
-                  <>
-                    <Text style={styles.errorMessage}>{generationError}</Text>
-                    <Text style={styles.resultHint}>
-                      CHANGE THE LOOK OR TRY AGAIN.
-                    </Text>
-                  </>
-                ) : generatedImageUri ? (
-                  <Image
-                    source={{ uri: generatedImageUri }}
-                    resizeMode="contain"
-                    style={styles.generatedImage}
-                  />
-                ) : null}
-              </View>
-            </View>
-          ) : (
-            <View style={styles.carouselStack}>
-              <Carousel
-                title="TOPS"
-                items={tops}
-                selectedIndex={selectedTopIndex}
-                onSelectedIndexChange={(index) => {
-                  setSelectedTopIndex(index);
-                  clearGeneratedResult();
-                }}
-              />
-
-              <Carousel
-                title="BOTTOMS"
-                items={bottoms}
-                selectedIndex={selectedBottomIndex}
-                onSelectedIndexChange={(index) => {
-                  setSelectedBottomIndex(index);
-                  clearGeneratedResult();
-                }}
-              />
-            </View>
-          )}
-
-          <View style={styles.actionRow}>
+          <View style={styles.content}>
             {showingResult ? (
-              <>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Change outfit selection"
-                  onPress={clearGeneratedResult}
-                  style={({ pressed }) => [
-                    styles.primaryAction,
-                    pressed && styles.buttonPressed,
-                  ]}
-                >
-                  <Text style={styles.primaryActionText}>CHANGE LOOK</Text>
-                </Pressable>
+              <View style={styles.resultGroup}>
+                <View style={styles.groupLabelBackground}>
+                  <Text style={styles.groupLabel}>
+                    {isGenerating
+                      ? "Creating Your Look"
+                      : generationError
+                      ? "Generation Error"
+                      : "Your Look"}
+                  </Text>
+                </View>
 
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Generate outfit again"
-                  disabled={isGenerating || !selectedTop || !selectedBottom}
-                  onPress={handleDressMe}
-                  style={({ pressed }) => [
-                    styles.secondaryAction,
-                    (isGenerating || !selectedTop || !selectedBottom) &&
-                      styles.disabledButton,
-                    pressed &&
-                      !isGenerating &&
-                      selectedTop &&
-                      selectedBottom &&
-                      styles.buttonPressed,
-                  ]}
-                >
-                  <Text style={styles.secondaryActionText}>TRY AGAIN</Text>
-                </Pressable>
-              </>
+                <View style={styles.resultBody}>
+                  {isGenerating ? (
+                    <>
+                      <ActivityIndicator size="large" />
+                      <Text style={styles.resultStatus}>
+                        Generating your outfit...
+                      </Text>
+                      <Text style={styles.resultHint}>
+                        Matching your selected top and bottom.
+                      </Text>
+                    </>
+                  ) : generationError ? (
+                    <>
+                      <Text style={styles.errorMessage}>{generationError}</Text>
+                      <Text style={styles.resultHint}>
+                        Change the look or try again.
+                      </Text>
+                    </>
+                  ) : generatedImageUri ? (
+                    <Image
+                      source={{ uri: generatedImageUri }}
+                      resizeMode="contain"
+                      style={styles.generatedImage}
+                    />
+                  ) : null}
+                </View>
+              </View>
             ) : (
-              <>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Browse closet"
-                  onPress={onBrowseCloset ?? onBack}
-                  style={({ pressed }) => [
-                    styles.primaryAction,
-                    pressed && styles.buttonPressed,
-                  ]}
-                >
-                  <Text style={styles.primaryActionText}>BROWSE</Text>
-                </Pressable>
+              <View style={styles.carouselStack}>
+                <Carousel
+                  title="Tops"
+                  items={tops}
+                  selectedIndex={selectedTopIndex}
+                  onSelectedIndexChange={(index) => {
+                    setSelectedTopIndex(index);
+                    clearGeneratedResult();
+                  }}
+                />
 
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Generate outfit preview"
-                  disabled={!canGenerate}
-                  onPress={handleDressMe}
-                  style={({ pressed }) => [
-                    styles.secondaryAction,
-                    !canGenerate && styles.disabledButton,
-                    pressed && canGenerate && styles.buttonPressed,
-                  ]}
-                >
-                  <Text style={styles.secondaryActionText}>DRESS ME</Text>
-                </Pressable>
-              </>
+                <View style={styles.carouselGap} />
+
+                <Carousel
+                  title="Bottoms"
+                  items={bottoms}
+                  selectedIndex={selectedBottomIndex}
+                  onSelectedIndexChange={(index) => {
+                    setSelectedBottomIndex(index);
+                    clearGeneratedResult();
+                  }}
+                />
+              </View>
             )}
+
+            <View style={styles.actionRow}>
+              {showingResult ? (
+                <>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Change outfit selection"
+                    onPress={clearGeneratedResult}
+                    style={({ pressed }) => [
+                      styles.windowsButton,
+                      styles.actionButton,
+                      pressed && styles.windowsButtonPressed,
+                    ]}
+                  >
+                    <Text style={styles.buttonText}>Change Look</Text>
+                  </Pressable>
+
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Generate outfit again"
+                    disabled={isGenerating || !selectedTop || !selectedBottom}
+                    onPress={handleDressMe}
+                    style={({ pressed }) => [
+                      styles.windowsButton,
+                      styles.actionButton,
+                      (isGenerating || !selectedTop || !selectedBottom) &&
+                        styles.disabledButton,
+                      pressed &&
+                        !isGenerating &&
+                        selectedTop &&
+                        selectedBottom &&
+                        styles.windowsButtonPressed,
+                    ]}
+                  >
+                    <Text style={styles.buttonText}>Try Again</Text>
+                  </Pressable>
+                </>
+              ) : (
+                <>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Browse closet"
+                    onPress={onBrowseCloset ?? onBack}
+                    style={({ pressed }) => [
+                      styles.windowsButton,
+                      styles.actionButton,
+                      pressed && styles.windowsButtonPressed,
+                    ]}
+                  >
+                    <Text style={styles.buttonText}>Browse...</Text>
+                  </Pressable>
+
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Generate outfit preview"
+                    disabled={!canGenerate}
+                    onPress={handleDressMe}
+                    style={({ pressed }) => [
+                      styles.windowsButton,
+                      styles.actionButton,
+                      !canGenerate && styles.disabledButton,
+                      pressed && canGenerate && styles.windowsButtonPressed,
+                    ]}
+                  >
+                    <Text style={styles.buttonText}>Dress Me</Text>
+                  </Pressable>
+                </>
+              )}
+            </View>
+          </View>
+
+          <View style={styles.statusBar}>
+            <View style={styles.statusPanel}>
+              <Text numberOfLines={1} style={styles.statusText}>
+                {selectedTop && selectedBottom
+                  ? `${selectedTop.name} + ${selectedBottom.name}`
+                  : "Select a top and bottom"}
+              </Text>
+            </View>
+
+            <View style={styles.statusPanelSmall}>
+              <Text style={styles.statusText}>
+                {isGenerating ? "Working..." : "Ready"}
+              </Text>
+            </View>
           </View>
         </View>
-
-        <View style={styles.bottomBar}>
-          <Text
-            numberOfLines={1}
-            adjustsFontSizeToFit
-            style={styles.bottomBarText}
-          >
-            TOPS · BOTTOMS · MIX + MATCH · DRESS ME
-          </Text>
-        </View>
-      </ImageBackground>
-    </SafeAreaView>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    width: "100%",
-    backgroundColor: "#11111E",
-  },
-
   background: {
     flex: 1,
     width: "100%",
-    overflow: "hidden",
+    height: "100%",
   },
 
-  topBar: {
-    height: 48,
+  safeArea: {
+    flex: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+  },
+
+  window: {
+    flex: 1,
+    width: "100%",
+    maxWidth: 640,
+    alignSelf: "center",
+    backgroundColor: "#C0C0C0",
+    borderWidth: 3,
+    borderTopColor: "#FFFFFF",
+    borderLeftColor: "#FFFFFF",
+    borderRightColor: "#000000",
+    borderBottomColor: "#000000",
+    padding: 3,
+  },
+
+  titleBar: {
+    height: 30,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#11111E",
-    borderBottomWidth: 2,
-    borderBottomColor: "#080810",
-    paddingHorizontal: 10,
-    zIndex: 2,
+    backgroundColor: "#000080",
+    paddingLeft: 6,
+    paddingRight: 3,
   },
 
-  headerButton: {
-    minWidth: 68,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#A7A7B0",
-    borderWidth: 2,
-    borderTopColor: "#F1F1F6",
-    borderLeftColor: "#F1F1F6",
-    borderRightColor: "#4A4A52",
-    borderBottomColor: "#4A4A52",
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-  },
-
-  headerButtonText: {
-    color: "#171720",
-    fontFamily: RETRO_FONT,
-    fontSize: 8,
-    fontWeight: "700",
-    letterSpacing: 0.25,
-  },
-
-  brand: {
+  titleBarText: {
     flex: 1,
-    color: "#C8D0FF",
-    fontFamily: RETRO_FONT,
-    fontSize: 12,
+    color: "#FFFFFF",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 15,
     fontWeight: "700",
-    letterSpacing: 1.5,
-    textAlign: "center",
-    textShadowColor: "#536BFF",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 4,
   },
 
-  modeLabel: {
-    minWidth: 76,
+  windowControls: {
+    flexDirection: "row",
+    gap: 2,
+  },
+
+  windowControlButton: {
+    width: 22,
+    height: 22,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#18182A",
-    borderWidth: 1,
-    borderColor: "#59618A",
-    paddingHorizontal: 7,
-    paddingVertical: 7,
+    backgroundColor: "#C0C0C0",
+    borderWidth: 2,
+    borderTopColor: "#FFFFFF",
+    borderLeftColor: "#FFFFFF",
+    borderRightColor: "#404040",
+    borderBottomColor: "#404040",
   },
 
-  modeLabelText: {
-    color: "#D5DAFF",
-    fontFamily: RETRO_FONT,
-    fontSize: 7,
+  minimizeSymbol: {
+    color: "#000000",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 14,
+    fontWeight: "900",
+    lineHeight: 15,
+    marginTop: -2,
+  },
+
+  maximizeSymbol: {
+    color: "#000000",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 13,
     fontWeight: "700",
-    letterSpacing: 0.5,
+    lineHeight: 15,
+  },
+
+  closeSymbol: {
+    color: "#000000",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 17,
+    fontWeight: "700",
+    lineHeight: 18,
+  },
+
+  menuBar: {
+    height: 30,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#C0C0C0",
+    paddingHorizontal: 8,
+    gap: 18,
+    borderBottomWidth: 1,
+    borderBottomColor: "#808080",
+  },
+
+  menuItem: {
+    color: "#000000",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 12,
   },
 
   content: {
     flex: 1,
-    width: "90%",
-    maxWidth: 500,
-    alignSelf: "center",
-    paddingTop: 10,
+    paddingHorizontal: 12,
+    paddingTop: 12,
     paddingBottom: 8,
-    zIndex: 2,
   },
 
   carouselStack: {
@@ -400,90 +463,75 @@ const styles = StyleSheet.create({
   },
 
   carouselGap: {
-    height: 0,
+    height: 10,
   },
 
   actionRow: {
-    height: 48,
+    height: 42,
     flexDirection: "row",
     gap: 10,
-    marginTop: 8,
+    marginTop: 10,
   },
 
-  primaryAction: {
+  windowsButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#C0C0C0",
+    borderWidth: 2,
+    borderTopColor: "#FFFFFF",
+    borderLeftColor: "#FFFFFF",
+    borderRightColor: "#404040",
+    borderBottomColor: "#404040",
+    paddingHorizontal: 12,
+  },
+
+  windowsButtonPressed: {
+    borderTopColor: "#404040",
+    borderLeftColor: "#404040",
+    borderRightColor: "#FFFFFF",
+    borderBottomColor: "#FFFFFF",
+    transform: [{ translateX: 1 }, { translateY: 1 }],
+  },
+
+  actionButton: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#263DDC",
-    borderWidth: 2,
-    borderTopColor: "#BFC9FF",
-    borderLeftColor: "#BFC9FF",
-    borderRightColor: "#14183F",
-    borderBottomColor: "#14183F",
   },
 
-  primaryActionText: {
-    color: "#FFFFFF",
-    fontFamily: RETRO_FONT,
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1,
-    textShadowColor: "#10132D",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 0,
-  },
-
-  secondaryAction: {
-    flex: 1.12,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#A9A9B2",
-    borderWidth: 2,
-    borderTopColor: "#F1F0F7",
-    borderLeftColor: "#F1F0F7",
-    borderRightColor: "#44444D",
-    borderBottomColor: "#44444D",
-  },
-
-  secondaryActionText: {
-    color: "#171720",
-    fontFamily: RETRO_FONT,
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1,
-    textShadowColor: "#EEEEF4",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 0,
+  buttonText: {
+    color: "#000000",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 13,
   },
 
   disabledButton: {
     opacity: 0.45,
   },
 
-  resultPanel: {
+  resultGroup: {
     flex: 1,
     minHeight: 0,
-    overflow: "hidden",
-    backgroundColor: "#B8C7E4",
-    borderWidth: 2,
-    borderColor: "#202237",
+    position: "relative",
+    borderWidth: 1,
+    borderTopColor: "#808080",
+    borderLeftColor: "#808080",
+    borderRightColor: "#FFFFFF",
+    borderBottomColor: "#FFFFFF",
+    padding: 10,
   },
 
-  resultHeader: {
-    height: 30,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#17172A",
-    borderBottomWidth: 2,
-    borderBottomColor: "#59618A",
+  groupLabelBackground: {
+    position: "absolute",
+    top: -9,
+    left: 12,
+    zIndex: 2,
+    backgroundColor: "#C0C0C0",
+    paddingHorizontal: 4,
   },
 
-  resultHeaderText: {
-    color: "#D5DAFF",
-    fontFamily: RETRO_FONT,
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1.4,
+  groupLabel: {
+    color: "#000000",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 12,
   },
 
   resultBody: {
@@ -491,67 +539,82 @@ const styles = StyleSheet.create({
     minHeight: 0,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#F3F3F0",
-    padding: 10,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 2,
+    borderTopColor: "#808080",
+    borderLeftColor: "#808080",
+    borderRightColor: "#FFFFFF",
+    borderBottomColor: "#FFFFFF",
+    padding: 12,
   },
 
   resultStatus: {
-    color: "#171824",
-    fontFamily: RETRO_FONT,
-    fontSize: 12,
+    color: "#000000",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 14,
     fontWeight: "700",
-    letterSpacing: 0.9,
-    marginTop: 10,
+    marginTop: 12,
     textAlign: "center",
   },
 
   resultHint: {
-    color: "#474D63",
-    fontFamily: RETRO_FONT,
-    fontSize: 8,
-    fontWeight: "700",
-    lineHeight: 12,
-    marginTop: 6,
+    color: "#000000",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 12,
+    lineHeight: 17,
+    marginTop: 7,
     textAlign: "center",
   },
 
   errorMessage: {
-    color: "#3B171D",
-    fontFamily: RETRO_FONT,
-    fontSize: 9,
-    lineHeight: 14,
+    color: "#800000",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 12,
+    lineHeight: 17,
     textAlign: "center",
   },
 
   generatedImage: {
     width: "100%",
     height: "100%",
-    backgroundColor: "#F3F3F0",
+    backgroundColor: "#FFFFFF",
   },
 
-  bottomBar: {
-    height: 32,
-    alignItems: "center",
+  statusBar: {
+    minHeight: 28,
+    flexDirection: "row",
+    gap: 3,
+    backgroundColor: "#C0C0C0",
+    padding: 3,
+    borderTopWidth: 1,
+    borderTopColor: "#FFFFFF",
+  },
+
+  statusPanel: {
+    flex: 1,
     justifyContent: "center",
-    backgroundColor: "#11111E",
-    borderTopWidth: 2,
-    borderTopColor: "#080810",
-    paddingHorizontal: 10,
-    zIndex: 2,
+    borderWidth: 1,
+    borderTopColor: "#808080",
+    borderLeftColor: "#808080",
+    borderRightColor: "#FFFFFF",
+    borderBottomColor: "#FFFFFF",
+    paddingHorizontal: 6,
   },
 
-  bottomBarText: {
-    width: "100%",
-    color: "#C7CEFF",
-    fontFamily: RETRO_FONT,
-    fontSize: 8,
-    fontWeight: "700",
-    letterSpacing: 0.9,
-    textAlign: "center",
+  statusPanelSmall: {
+    width: 76,
+    justifyContent: "center",
+    borderWidth: 1,
+    borderTopColor: "#808080",
+    borderLeftColor: "#808080",
+    borderRightColor: "#FFFFFF",
+    borderBottomColor: "#FFFFFF",
+    paddingHorizontal: 6,
   },
 
-  buttonPressed: {
-    opacity: 0.82,
-    transform: [{ translateX: 1 }, { translateY: 1 }],
+  statusText: {
+    color: "#000000",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 10,
   },
 });
