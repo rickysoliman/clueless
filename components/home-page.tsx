@@ -242,12 +242,10 @@ export default function HomePage({ onLogOut }: HomePageProps) {
           height: "100%",
         }}
       >
-        <Pressable onPress={() => setTab("home")}>
-          <BuildOutfitPage
-            onBack={() => setTab("home")}
-            onBrowseCloset={() => setTab("browse")}
-          />
-        </Pressable>
+        <BuildOutfitPage
+          onBack={() => setTab("home")}
+          onBrowseCloset={() => setTab("browse")}
+        />
       </View>
     );
   } else if (tab === "browse") {
