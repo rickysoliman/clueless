@@ -2,8 +2,6 @@ import {
   ImageBackground,
   Platform,
   Pressable,
-  SafeAreaView,
-  StatusBar,
   StyleSheet,
   Text,
   View,
@@ -50,89 +48,55 @@ export default function LandingPage({
       style={styles.background}
       imageStyle={styles.backgroundImage}
     >
-      <StatusBar barStyle="light-content" backgroundColor="#171521" />
+      <View style={styles.patternArea}>
+        <View style={styles.loginPanel}>
+          <View style={styles.panelHeader}>
+            <Text style={styles.panelHeaderText}>YOUR DIGITAL WARDROBE</Text>
+          </View>
 
-      <View style={styles.colorWash} />
+          <View style={styles.panelBody}>
+            <Text style={styles.eyebrow}>WELCOME TO</Text>
 
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.monitorFrame}>
-          <View style={styles.monitorBezel}>
-            <View style={styles.display}>
-              <View style={styles.topBar}>
-                <Text style={styles.topBarBrand}>DRESS ME</Text>
+            <Text style={styles.title}>CHER AI</Text>
 
-                <View style={styles.topBarTab}>
-                  <Text style={styles.topBarTabText}>WARDROBE ACCESS</Text>
-                </View>
-              </View>
+            <View style={styles.divider} />
 
-              <View style={styles.patternArea}>
-                <View style={styles.loginPanel}>
-                  <View style={styles.panelHeader}>
-                    <Text style={styles.panelHeaderText}>
-                      YOUR DIGITAL WARDROBE
-                    </Text>
-                  </View>
+            <Text style={styles.subtitle}>
+              MIX, MATCH, AND LOOK{" "}
+              <Text style={styles.emphasis}>FABULOUS!</Text>
+              OBVIOUSLY!
+            </Text>
 
-                  <View style={styles.panelBody}>
-                    <Text style={styles.eyebrow}>WELCOME TO</Text>
+            <View style={styles.actions}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Log in"
+                onPress={onLogIn}
+                style={({ pressed }) => [
+                  styles.retroButton,
+                  styles.primaryButton,
+                  pressed && styles.buttonPressed,
+                ]}
+              >
+                <Text style={styles.primaryButtonText}>LOG IN</Text>
+              </Pressable>
 
-                    <Text style={styles.title}>DRESS ME</Text>
-
-                    <View style={styles.divider} />
-
-                    <Text style={styles.subtitle}>
-                      BUILD YOUR WARDROBE, CREATE A LOOK, AND PREVIEW IT ON YOU.
-                    </Text>
-
-                    <View style={styles.actions}>
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel="Log in"
-                        onPress={onLogIn}
-                        style={({ pressed }) => [
-                          styles.retroButton,
-                          styles.primaryButton,
-                          pressed && styles.buttonPressed,
-                        ]}
-                      >
-                        <Text style={styles.primaryButtonText}>LOG IN</Text>
-                      </Pressable>
-
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel="Create an account"
-                        onPress={onCreateAccount}
-                        style={({ pressed }) => [
-                          styles.retroButton,
-                          styles.secondaryButton,
-                          pressed && styles.buttonPressed,
-                        ]}
-                      >
-                        <Text style={styles.secondaryButtonText}>
-                          CREATE ACCOUNT
-                        </Text>
-                      </Pressable>
-                    </View>
-                  </View>
-                </View>
-              </View>
-
-              <View style={styles.bottomBar}>
-                <Text
-                  numberOfLines={1}
-                  adjustsFontSizeToFit
-                  style={styles.bottomBarText}
-                >
-                  TOPS · BOTTOMS · OUTFITS · MORE
-                </Text>
-              </View>
-
-              <Scanlines />
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Create an account"
+                onPress={onCreateAccount}
+                style={({ pressed }) => [
+                  styles.retroButton,
+                  styles.secondaryButton,
+                  pressed && styles.buttonPressed,
+                ]}
+              >
+                <Text style={styles.secondaryButtonText}>CREATE ACCOUNT</Text>
+              </Pressable>
             </View>
           </View>
         </View>
-      </SafeAreaView>
+      </View>
     </ImageBackground>
   );
 }
@@ -150,48 +114,12 @@ const styles = StyleSheet.create({
 
   colorWash: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(55, 34, 20, 0.46)",
   },
 
   safeArea: {
     flex: 1,
     paddingHorizontal: 10,
     paddingVertical: 8,
-  },
-
-  monitorFrame: {
-    flex: 1,
-    width: "100%",
-    maxWidth: 640,
-    alignSelf: "center",
-    backgroundColor: "#443A31",
-    borderWidth: 5,
-    borderTopColor: "#817469",
-    borderLeftColor: "#817469",
-    borderRightColor: "#211B17",
-    borderBottomColor: "#211B17",
-    borderRadius: 22,
-    padding: 8,
-    shadowColor: "#000000",
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
-    shadowOpacity: 0.6,
-    shadowRadius: 16,
-    elevation: 16,
-  },
-
-  monitorBezel: {
-    flex: 1,
-    backgroundColor: "#27232A",
-    borderWidth: 4,
-    borderTopColor: "#5B535E",
-    borderLeftColor: "#5B535E",
-    borderRightColor: "#100E13",
-    borderBottomColor: "#100E13",
-    borderRadius: 15,
-    padding: 7,
   },
 
   display: {
@@ -254,7 +182,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 18,
     paddingVertical: 20,
-    backgroundColor: "rgba(188, 154, 111, 0.58)",
     zIndex: 2,
   },
 
@@ -354,6 +281,11 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     letterSpacing: 0.7,
     textAlign: "center",
+  },
+
+  emphasis: {
+    fontSize: 20,
+    fontWeight: "900",
   },
 
   actions: {
