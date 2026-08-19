@@ -22,11 +22,11 @@ export const dummyData: WardrobeItem[] = [
     type: "top",
 
     referencePhotos: {
-      front: require("../images/white-button-down.jpg"),
+      front: require("../images/white-button-down.jpeg"),
     },
 
     catalogPhotos: {
-      front: require("../images/white-button-down.jpg"),
+      front: require("../images/white-button-down.jpeg"),
     },
   },
 
@@ -36,11 +36,11 @@ export const dummyData: WardrobeItem[] = [
     type: "top",
 
     referencePhotos: {
-      front: require("../images/black-t-shirt.jpg"),
+      front: require("../images/black-t-shirt.jpeg"),
     },
 
     catalogPhotos: {
-      front: require("../images/black-t-shirt.jpg"),
+      front: require("../images/black-t-shirt.jpeg"),
     },
   },
 
@@ -50,11 +50,11 @@ export const dummyData: WardrobeItem[] = [
     type: "top",
 
     referencePhotos: {
-      front: require("../images/blue-sweater.jpg"),
+      front: require("../images/blue-sweater.jpeg"),
     },
 
     catalogPhotos: {
-      front: require("../images/blue-sweater.jpg"),
+      front: require("../images/blue-sweater.jpeg"),
     },
   },
 
@@ -64,11 +64,11 @@ export const dummyData: WardrobeItem[] = [
     type: "bottom",
 
     referencePhotos: {
-      front: require("../images/black-jeans.jpg"),
+      front: require("../images/black-jeans.jpeg"),
     },
 
     catalogPhotos: {
-      front: require("../images/black-jeans.jpg"),
+      front: require("../images/black-jeans.jpeg"),
     },
   },
 
@@ -78,11 +78,11 @@ export const dummyData: WardrobeItem[] = [
     type: "bottom",
 
     referencePhotos: {
-      front: require("../images/khaki-pants.jpg"),
+      front: require("../images/khaki-pants.jpeg"),
     },
 
     catalogPhotos: {
-      front: require("../images/khaki-pants.jpg"),
+      front: require("../images/khaki-pants.jpeg"),
     },
   },
 ];

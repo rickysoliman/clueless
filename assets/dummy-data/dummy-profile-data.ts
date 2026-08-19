@@ -7,5 +7,5 @@ export type DummyProfileData = {
 
 export const dummyProfileData: DummyProfileData = {
   firstName: "Suzin",
-  profilePicture: require("../images/suzin-profile.jpg"),
+  profilePicture: require("../images/suzin-profile.jpeg"),
 };
