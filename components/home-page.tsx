@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   ImageBackground,
   Platform,
@@ -11,6 +11,9 @@ import {
   View,
 } from "react-native";
 import { dummyData } from "../assets/dummy-data/dummy-data";
+import AddClothingPage from "./add-clothing-page";
+import BrowseClosetPage from "./browse-closet-page";
+import BuildOutfitPage from "./build-outfit-page";
 
 const leopardPrintBackground = require("../assets/images/leopard-print-background.png");
 
@@ -24,8 +27,6 @@ const SCANLINES = Array.from({ length: 46 });
 
 type HomePageProps = {
   onLogOut: () => void;
-  onBuildOutfit?: () => void;
-  onAddClothing?: () => void;
 };
 
 type DummyWardrobeItem = {
@@ -47,11 +48,14 @@ function Scanlines() {
   );
 }
 
-export default function HomePage({
-  onLogOut,
-  onBuildOutfit = () => undefined,
-  onAddClothing = () => undefined,
-}: HomePageProps) {
+export default function HomePage({ onLogOut }: HomePageProps) {
+  const [tab, setTab] = useState("home");
+  // TABS: home, build, browse, add
+  // Home (default)
+  // Build (build a new outfit, aka "DRESS ME")
+  // Browse (browse all clothing items in closet)
+  // Add (add new clothing items to closet)
+
   const wardrobeItems = dummyData as DummyWardrobeItem[];
 
   const topCount = wardrobeItems.filter((item) => item.type === "top").length;
@@ -65,167 +69,217 @@ export default function HomePage({
   const wardrobeIsEmpty =
     topCount === 0 && bottomCount === 0 && outfitCount === 0;
 
-  return (
-    <SafeAreaView style={styles.screen}>
-      <StatusBar barStyle="light-content" backgroundColor="#171521" />
+  if (tab === "home") {
+    return (
+      <SafeAreaView style={styles.screen}>
+        <StatusBar barStyle="light-content" backgroundColor="#171521" />
 
-      <View style={styles.monitorFrame}>
-        <View style={styles.monitorBezel}>
-          <ImageBackground
-            source={leopardPrintBackground}
-            resizeMode="cover"
-            style={styles.display}
-            imageStyle={styles.leopardBackgroundImage}
-          >
-            <View style={styles.topBar}>
-              <Text style={styles.brand}>DRESS ME</Text>
-
-              <View style={styles.seasonTab}>
-                <Text style={styles.seasonTabText}>ALL FASHIONS</Text>
-              </View>
-
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Log out"
-                onPress={onLogOut}
-                style={({ pressed }) => [
-                  styles.logoutButton,
-                  pressed && styles.buttonPressed,
-                ]}
-              >
-                <Text style={styles.logoutButtonText}>LOG OUT</Text>
-              </Pressable>
-            </View>
-
-            <ScrollView
-              style={styles.scrollView}
-              contentContainerStyle={styles.content}
-              showsVerticalScrollIndicator={false}
+        <View style={styles.monitorFrame}>
+          <View style={styles.monitorBezel}>
+            <ImageBackground
+              source={leopardPrintBackground}
+              resizeMode="cover"
+              style={styles.display}
+              imageStyle={styles.leopardBackgroundImage}
             >
-              <View style={styles.heroPanel}>
-                <View style={styles.heroPanelHeader}>
-                  <Text style={styles.heroEyebrow}>TODAY&apos;S LOOK</Text>
+              <View style={styles.topBar}>
+                <Text style={styles.brand}>DRESS ME</Text>
+
+                <View style={styles.seasonTab}>
+                  <Text style={styles.seasonTabText}>ALL FASHIONS</Text>
                 </View>
 
-                <View style={styles.heroPanelBody}>
-                  {wardrobeIsEmpty ? (
-                    <>
-                      <Text style={styles.heroTitle}>YOUR CLOSET IS EMPTY</Text>
-
-                      <View style={styles.heroDivider} />
-
-                      <Text style={styles.heroDescription}>
-                        YOU HAVEN&apos;T ADDED ANY CLOTHING YET. START BUILDING
-                        YOUR DIGITAL WARDROBE BY UPLOADING YOUR FIRST TOP OR
-                        BOTTOM!
-                      </Text>
-
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel="Add your first clothing item"
-                        onPress={onAddClothing}
-                        style={({ pressed }) => [
-                          styles.dressMeButton,
-                          pressed && styles.buttonPressed,
-                        ]}
-                      >
-                        <Text style={styles.dressMeButtonText}>
-                          ADD YOUR FIRST ITEM
-                        </Text>
-                      </Pressable>
-                    </>
-                  ) : (
-                    <>
-                      <Text style={styles.heroTitle}>
-                        READY TO GET DRESSED?
-                      </Text>
-
-                      <View style={styles.heroDivider} />
-
-                      <Text style={styles.heroDescription}>
-                        SELECT A TOP AND BOTTOM, THEN PREVIEW THE COMPLETE
-                        OUTFIT.
-                      </Text>
-
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel="Build an outfit"
-                        onPress={onBuildOutfit}
-                        style={({ pressed }) => [
-                          styles.dressMeButton,
-                          pressed && styles.buttonPressed,
-                        ]}
-                      >
-                        <Text style={styles.dressMeButtonText}>DRESS ME</Text>
-                      </Pressable>
-                    </>
-                  )}
-                </View>
-              </View>
-
-              <View style={styles.sectionLabel}>
-                <Text style={styles.sectionLabelText}>WARDROBE INVENTORY</Text>
-              </View>
-
-              <View style={styles.statsRow}>
-                <View style={styles.statCard}>
-                  <Text style={styles.statNumber}>{topCount}</Text>
-                  <Text style={styles.statLabel}>TOPS</Text>
-                </View>
-
-                <View style={styles.statCard}>
-                  <Text style={styles.statNumber}>{bottomCount}</Text>
-                  <Text style={styles.statLabel}>BOTTOMS</Text>
-                </View>
-
-                <View style={styles.statCard}>
-                  <Text style={styles.statNumber}>{outfitCount}</Text>
-                  <Text style={styles.statLabel}>OUTFITS</Text>
-                </View>
-              </View>
-
-              {!wardrobeIsEmpty && (
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel="Add clothing"
-                  onPress={onAddClothing}
+                  accessibilityLabel="Log out"
+                  onPress={onLogOut}
                   style={({ pressed }) => [
-                    styles.addButton,
+                    styles.logoutButton,
                     pressed && styles.buttonPressed,
                   ]}
                 >
-                  <View style={styles.addButtonIcon}>
-                    <Text style={styles.addButtonIconText}>+</Text>
-                  </View>
-
-                  <View style={styles.addButtonTextContainer}>
-                    <Text style={styles.addButtonTitle}>ADD CLOTHING</Text>
-                    <Text style={styles.addButtonSubtitle}>
-                      BROWSE TOPS + BOTTOMS
-                    </Text>
-                  </View>
-
-                  <Text style={styles.addButtonArrow}>&gt;&gt;</Text>
+                  <Text style={styles.logoutButtonText}>LOG OUT</Text>
                 </Pressable>
-              )}
-            </ScrollView>
+              </View>
 
-            <View style={styles.bottomBar}>
-              <Text
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                style={styles.bottomBarText}
+              <ScrollView
+                style={styles.scrollView}
+                contentContainerStyle={styles.content}
+                showsVerticalScrollIndicator={false}
               >
-                TOPS · BOTTOMS · OUTFITS · MORE
-              </Text>
-            </View>
+                <View style={styles.heroPanel}>
+                  <View style={styles.heroPanelBody}>
+                    {wardrobeIsEmpty ? (
+                      <>
+                        <Text style={styles.heroTitle}>
+                          YOUR CLOSET IS EMPTY
+                        </Text>
 
-            <Scanlines />
-          </ImageBackground>
+                        <View style={styles.heroDivider} />
+
+                        <Text style={styles.heroDescription}>
+                          YOU HAVEN&apos;T ADDED ANY CLOTHING YET. START
+                          BUILDING YOUR DIGITAL WARDROBE BY UPLOADING YOUR FIRST
+                          TOP OR BOTTOM!
+                        </Text>
+
+                        <Pressable
+                          accessibilityRole="button"
+                          accessibilityLabel="Add your first clothing item"
+                          onPress={() => setTab("add")}
+                          style={({ pressed }) => [
+                            styles.dressMeButton,
+                            pressed && styles.buttonPressed,
+                          ]}
+                        >
+                          <Text style={styles.dressMeButtonText}>
+                            ADD YOUR FIRST ITEM
+                          </Text>
+                        </Pressable>
+                      </>
+                    ) : (
+                      <>
+                        <Text style={styles.heroTitle}>
+                          READY TO GET DRESSED?
+                        </Text>
+
+                        <View style={styles.heroDivider} />
+
+                        <Text style={styles.heroDescription}>
+                          SELECT A TOP AND BOTTOM, THEN PREVIEW THE COMPLETE
+                          OUTFIT!
+                        </Text>
+
+                        <Pressable
+                          accessibilityRole="button"
+                          accessibilityLabel="Build an outfit"
+                          onPress={() => setTab("build")}
+                          style={({ pressed }) => [
+                            styles.dressMeButton,
+                            pressed && styles.buttonPressed,
+                          ]}
+                        >
+                          <Text style={styles.dressMeButtonText}>DRESS ME</Text>
+                        </Pressable>
+                      </>
+                    )}
+                  </View>
+                </View>
+
+                <View style={styles.sectionLabel}>
+                  <Pressable onPress={() => setTab("browse")}>
+                    <Text style={styles.sectionLabelText}>BROWSE CLOSET</Text>
+                  </Pressable>
+                </View>
+
+                <View style={styles.statsRow}>
+                  <View style={styles.statCard}>
+                    <Text style={styles.statNumber}>{topCount}</Text>
+                    <Text style={styles.statLabel}>TOPS</Text>
+                  </View>
+
+                  <View style={styles.statCard}>
+                    <Text style={styles.statNumber}>{bottomCount}</Text>
+                    <Text style={styles.statLabel}>BOTTOMS</Text>
+                  </View>
+
+                  <View style={styles.statCard}>
+                    <Text style={styles.statNumber}>{outfitCount}</Text>
+                    <Text style={styles.statLabel}>OUTFITS</Text>
+                  </View>
+                </View>
+
+                {!wardrobeIsEmpty && (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Add clothing"
+                    onPress={() => setTab("add")}
+                    style={({ pressed }) => [
+                      styles.addButton,
+                      pressed && styles.buttonPressed,
+                    ]}
+                  >
+                    <View style={styles.addButtonIcon}>
+                      <Text style={styles.addButtonIconText}>+</Text>
+                    </View>
+
+                    <View style={styles.addButtonTextContainer}>
+                      <Text style={styles.addButtonTitle}>ADD CLOTHING</Text>
+                      <Text style={styles.addButtonSubtitle}>
+                        BROWSE TOPS + BOTTOMS
+                      </Text>
+                    </View>
+
+                    <Text style={styles.addButtonArrow}>&gt;&gt;</Text>
+                  </Pressable>
+                )}
+              </ScrollView>
+
+              <View style={styles.bottomBar}>
+                <Text
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  style={styles.bottomBarText}
+                >
+                  TOPS · BOTTOMS · OUTFITS · MORE
+                </Text>
+              </View>
+
+              <Scanlines />
+            </ImageBackground>
+          </View>
         </View>
+      </SafeAreaView>
+    );
+  } else if (tab === "build") {
+    return (
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+        }}
+      >
+        <Pressable onPress={() => setTab("home")}>
+          <BuildOutfitPage></BuildOutfitPage>
+        </Pressable>
       </View>
-    </SafeAreaView>
-  );
+    );
+  } else if (tab === "browse") {
+    return (
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+        }}
+      >
+        <Pressable onPress={() => setTab("home")}>
+          <BrowseClosetPage></BrowseClosetPage>
+        </Pressable>
+      </View>
+    );
+  } else if (tab === "add") {
+    return (
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+        }}
+      >
+        <Pressable onPress={() => setTab("home")}>
+          <AddClothingPage></AddClothingPage>
+        </Pressable>
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
