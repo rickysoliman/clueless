@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   Alert,
   ImageBackground,
+  ImageSourcePropType,
   Platform,
   Pressable,
   SafeAreaView,
@@ -15,6 +16,7 @@ import { dummyData } from "../assets/dummy-data/dummy-data";
 import AddClothingPage from "./add-clothing-page";
 import BrowseClosetPage, { type ClosetSelection } from "./browse-closet-page";
 import BuildOutfitPage from "./build-outfit-page";
+import Profile from "./profile";
 
 const leopardPrintBackground = require("../assets/images/leopard-print-background.png");
 
@@ -26,6 +28,10 @@ const WINDOWS_FONT = Platform.select({
 
 type HomePageProps = {
   onLogOut: () => void;
+  profileFirstName?: string;
+  profilePicture?: ImageSourcePropType;
+  onChangeProfilePhoto?: () => void;
+  onEditProfileName?: () => void;
 };
 
 type DummyWardrobeItem = {
@@ -71,7 +77,13 @@ function WindowsMenuItem({
   );
 }
 
-export default function HomePage({ onLogOut }: HomePageProps) {
+export default function HomePage({
+  onLogOut,
+  profileFirstName = "User",
+  profilePicture,
+  onChangeProfilePhoto,
+  onEditProfileName,
+}: HomePageProps) {
   // TABS: home, build, browse, add
   const [tab, setTab] = useState("home");
 
@@ -114,13 +126,6 @@ export default function HomePage({ onLogOut }: HomePageProps) {
     Alert.alert(
       "How Cher AI Works",
       "Add your clothes to your closet, mix and match a top and bottom, then use Dress Me to preview the finished outfit."
-    );
-  }
-
-  function showProfilePlaceholder() {
-    Alert.alert(
-      "Profile",
-      "The profile screen has not been built yet. This menu item is ready to connect when you add it."
     );
   }
 
@@ -309,7 +314,7 @@ export default function HomePage({ onLogOut }: HomePageProps) {
                     />
                     <WindowsMenuItem
                       label="Profile"
-                      onPress={() => runMenuAction(showProfilePlaceholder)}
+                      onPress={() => runMenuAction(() => setTab("profile"))}
                     />
 
                     <View style={styles.menuSeparator} />
@@ -483,6 +488,18 @@ export default function HomePage({ onLogOut }: HomePageProps) {
       <BrowseClosetPage
         onBack={() => setTab("home")}
         onBuildOutfit={(selection) => openBuildOutfit(selection)}
+      />
+    );
+  }
+
+  if (tab === "profile") {
+    return (
+      <Profile
+        firstName={profileFirstName}
+        profilePicture={profilePicture}
+        onBack={() => setTab("home")}
+        onChangePhoto={onChangeProfilePhoto}
+        onEditName={onEditProfileName}
       />
     );
   }
