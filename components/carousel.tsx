@@ -61,12 +61,6 @@ export default function Carousel({
               resizeMode="contain"
               style={styles.image}
             />
-
-            <View style={styles.itemNameBar}>
-              <Text numberOfLines={1} style={styles.itemName}>
-                {selectedItem.name.toUpperCase()}
-              </Text>
-            </View>
           </>
         ) : (
           <View style={styles.placeholder}>
@@ -80,7 +74,7 @@ export default function Carousel({
           accessibilityRole="button"
           accessibilityLabel={`Jump backward through ${title.toLowerCase()}`}
           disabled={items.length < 2}
-          onPress={() => moveBy(-5)}
+          onPress={() => moveBy(-1)}
           style={({ pressed }) => [
             styles.controlButton,
             pressed && styles.buttonPressed,
@@ -92,37 +86,23 @@ export default function Carousel({
 
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={`Previous ${title.toLowerCase()}`}
-          disabled={items.length < 2}
-          onPress={() => moveBy(-1)}
-          style={({ pressed }) => [
-            styles.controlButton,
-            pressed && styles.buttonPressed,
-            items.length < 2 && styles.disabledButton,
-          ]}
-        >
-          <Text style={styles.controlText}>{"<"}</Text>
-        </Pressable>
-
-        <Pressable
-          accessibilityRole="button"
           accessibilityLabel={`Next ${title.toLowerCase()}`}
           disabled={items.length < 2}
-          onPress={() => moveBy(1)}
+          // onPress={() => moveBy(1)}
           style={({ pressed }) => [
             styles.controlButton,
             pressed && styles.buttonPressed,
             items.length < 2 && styles.disabledButton,
           ]}
         >
-          <Text style={styles.controlText}>{">"}</Text>
+          <Text style={styles.controlText}>{"▶︎"}</Text>
         </Pressable>
 
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Jump forward through ${title.toLowerCase()}`}
           disabled={items.length < 2}
-          onPress={() => moveBy(5)}
+          onPress={() => moveBy(1)}
           style={({ pressed }) => [
             styles.controlButton,
             pressed && styles.buttonPressed,
