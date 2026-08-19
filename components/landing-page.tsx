@@ -1,13 +1,7 @@
-import {
-  ImageBackground,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { useVideoPlayer, VideoView } from "expo-video";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 
-const landingPageBackground = require("../assets/images/landing-page-background.png");
+const screensaverVideo = require("../assets/videos/screensaver-loop.mp4");
 
 const RETRO_FONT = Platform.select({
   ios: "Courier New",
@@ -15,39 +9,30 @@ const RETRO_FONT = Platform.select({
   default: "monospace",
 });
 
-const SCANLINES = Array.from({ length: 42 });
-
 type LandingPageProps = {
   onLogIn: () => void;
   onCreateAccount: () => void;
 };
 
-function Scanlines() {
-  return (
-    <View
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
-      pointerEvents="none"
-      style={styles.scanlineLayer}
-    >
-      {SCANLINES.map((_, index) => (
-        <View key={index} style={styles.scanline} />
-      ))}
-    </View>
-  );
-}
-
 export default function LandingPage({
   onLogIn,
   onCreateAccount,
 }: LandingPageProps) {
+  const player = useVideoPlayer(screensaverVideo, (player) => {
+    player.loop = true;
+    player.muted = true;
+    player.play();
+  });
+
   return (
-    <ImageBackground
-      source={landingPageBackground}
-      resizeMode="cover"
-      style={styles.background}
-      imageStyle={styles.backgroundImage}
-    >
+    <View style={styles.screen}>
+      <VideoView
+        player={player}
+        nativeControls={false}
+        contentFit="cover"
+        style={styles.backgroundVideo}
+      />
+
       <View style={styles.patternArea}>
         <View style={styles.loginPanel}>
           <View style={styles.panelHeader}>
@@ -63,8 +48,7 @@ export default function LandingPage({
 
             <Text style={styles.subtitle}>
               MIX, MATCH, AND LOOK{" "}
-              <Text style={styles.emphasis}>FABULOUS!</Text>
-              OBVIOUSLY!
+              <Text style={styles.emphasis}>FABULOUS!</Text> OBVIOUSLY!
             </Text>
 
             <View style={styles.actions}>
@@ -97,84 +81,24 @@ export default function LandingPage({
           </View>
         </View>
       </View>
-    </ImageBackground>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  background: {
+  screen: {
     flex: 1,
-    width: "100%",
-    height: "100%",
-  },
-
-  backgroundImage: {
-    opacity: 0.92,
-  },
-
-  colorWash: {
-    ...StyleSheet.absoluteFillObject,
-  },
-
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-  },
-
-  display: {
-    flex: 1,
-    position: "relative",
+    backgroundColor: "#000000",
     overflow: "hidden",
-    backgroundColor: "#B59B76",
-    borderWidth: 3,
-    borderColor: "#0B0B13",
-    borderRadius: 9,
   },
 
-  topBar: {
-    minHeight: 48,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#141426",
-    borderBottomWidth: 4,
-    borderBottomColor: "#070711",
-    paddingHorizontal: 10,
-    zIndex: 2,
-  },
+  backgroundVideo: {
+    ...StyleSheet.absoluteFillObject,
 
-  topBarBrand: {
-    flex: 1,
-    color: "#B9C7FF",
-    fontFamily: RETRO_FONT,
-    fontSize: 14,
-    fontWeight: "700",
-    letterSpacing: 2.2,
-    textShadowColor: "#536CFF",
-    textShadowOffset: {
-      width: 1,
-      height: 1,
-    },
-    textShadowRadius: 5,
-  },
-
-  topBarTab: {
-    backgroundColor: "#1A1A2E",
-    borderWidth: 2,
-    borderTopColor: "#8992C2",
-    borderLeftColor: "#8992C2",
-    borderRightColor: "#080810",
-    borderBottomColor: "#080810",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-  },
-
-  topBarTabText: {
-    color: "#CED5FF",
-    fontFamily: RETRO_FONT,
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1.1,
+    // contentFit="cover" already crops the landscape video to the
+    // portrait phone screen. This extra zoom removes more of the
+    // monitor frame from the top/bottom of the original footage.
+    transform: [{ scale: 1.22 }],
   },
 
   patternArea: {
@@ -190,11 +114,13 @@ const styles = StyleSheet.create({
     maxWidth: 480,
     alignSelf: "center",
     backgroundColor: "#AEBEDB",
+
     borderWidth: 5,
     borderTopColor: "#EDF2FF",
     borderLeftColor: "#EDF2FF",
     borderRightColor: "#30364D",
     borderBottomColor: "#30364D",
+
     shadowColor: "#090914",
     shadowOffset: {
       width: 7,
@@ -202,6 +128,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.65,
     shadowRadius: 0,
+
     elevation: 12,
   },
 
@@ -222,6 +149,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: 1.7,
     textAlign: "center",
+
     textShadowColor: "#5068FF",
     textShadowOffset: {
       width: 1,
@@ -254,6 +182,7 @@ const styles = StyleSheet.create({
     letterSpacing: 4,
     marginTop: 8,
     textAlign: "center",
+
     textShadowColor: "#F2F5FF",
     textShadowOffset: {
       width: 2,
@@ -266,8 +195,10 @@ const styles = StyleSheet.create({
     width: "76%",
     height: 4,
     backgroundColor: "#3C425D",
+
     borderTopWidth: 1,
     borderTopColor: "#F0F4FF",
+
     marginTop: 16,
     marginBottom: 17,
   },
@@ -278,7 +209,7 @@ const styles = StyleSheet.create({
     fontFamily: RETRO_FONT,
     fontSize: 13,
     fontWeight: "700",
-    lineHeight: 20,
+    lineHeight: 22,
     letterSpacing: 0.7,
     textAlign: "center",
   },
@@ -298,13 +229,16 @@ const styles = StyleSheet.create({
     minHeight: 58,
     alignItems: "center",
     justifyContent: "center",
+
     borderWidth: 4,
     borderTopColor: "#F5F4FF",
     borderLeftColor: "#F5F4FF",
     borderRightColor: "#151521",
     borderBottomColor: "#151521",
+
     borderRadius: 2,
     paddingHorizontal: 18,
+
     shadowColor: "#171723",
     shadowOffset: {
       width: 4,
@@ -312,6 +246,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.55,
     shadowRadius: 0,
+
     elevation: 7,
   },
 
@@ -325,6 +260,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "700",
     letterSpacing: 2,
+
     textShadowColor: "#111228",
     textShadowOffset: {
       width: 2,
@@ -344,45 +280,13 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "700",
     letterSpacing: 1.2,
+
     textShadowColor: "#ECECF4",
     textShadowOffset: {
       width: 1,
       height: 1,
     },
     textShadowRadius: 0,
-  },
-
-  bottomBar: {
-    minHeight: 42,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#141426",
-    borderTopWidth: 4,
-    borderTopColor: "#070711",
-    paddingHorizontal: 10,
-    zIndex: 2,
-  },
-
-  bottomBarText: {
-    width: "100%",
-    color: "#C3CAFA",
-    fontFamily: RETRO_FONT,
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1.4,
-    textAlign: "center",
-  },
-
-  scanlineLayer: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: "space-between",
-    zIndex: 10,
-  },
-
-  scanline: {
-    width: "100%",
-    height: 1,
-    backgroundColor: "rgba(14, 16, 39, 0.1)",
   },
 
   buttonPressed: {
