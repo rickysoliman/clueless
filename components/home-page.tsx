@@ -13,6 +13,7 @@ import {
   View,
 } from "react-native";
 import { dummyData } from "../assets/dummy-data/dummy-data";
+import { dummyProfileData } from "../assets/dummy-data/dummy-profile-data";
 import AddClothingPage from "./add-clothing-page";
 import BrowseClosetPage, { type ClosetSelection } from "./browse-closet-page";
 import BuildOutfitPage from "./build-outfit-page";
@@ -79,8 +80,8 @@ function WindowsMenuItem({
 
 export default function HomePage({
   onLogOut,
-  profileFirstName = "User",
-  profilePicture,
+  profileFirstName = dummyProfileData.firstName,
+  profilePicture = dummyProfileData.profilePicture,
   onChangeProfilePhoto,
   onEditProfileName,
 }: HomePageProps) {
