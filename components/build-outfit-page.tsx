@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -6,7 +6,6 @@ import {
   Platform,
   Pressable,
   SafeAreaView,
-  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
@@ -23,8 +22,6 @@ const RETRO_FONT = Platform.select({
   default: "monospace",
 });
 
-const SCANLINES = Array.from({ length: 48 });
-
 type BuildOutfitPageProps = {
   onBack: () => void;
   onBrowseCloset?: () => void;
@@ -34,21 +31,6 @@ type GenerateOutfitResponse = {
   imageUrl?: string;
   error?: string;
 };
-
-function Scanlines() {
-  return (
-    <View
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
-      pointerEvents="none"
-      style={styles.scanlineLayer}
-    >
-      {SCANLINES.map((_, index) => (
-        <View key={index} style={styles.scanline} />
-      ))}
-    </View>
-  );
-}
 
 async function requestGeneratedOutfit(
   top: WardrobeItem,
@@ -114,6 +96,13 @@ export default function BuildOutfitPage({
   const selectedBottom = bottoms[selectedBottomIndex];
 
   const canGenerate = Boolean(selectedTop && selectedBottom && !isGenerating);
+  const showingResult =
+    isGenerating || Boolean(generatedImageUri) || Boolean(generationError);
+
+  function clearGeneratedResult() {
+    setGeneratedImageUri(null);
+    setGenerationError(null);
+  }
 
   async function handleDressMe() {
     if (!selectedTop || !selectedBottom || isGenerating) {
@@ -144,53 +133,86 @@ export default function BuildOutfitPage({
 
   return (
     <SafeAreaView style={styles.screen}>
-      <StatusBar barStyle="light-content" backgroundColor="#171521" />
+      <StatusBar barStyle="light-content" backgroundColor="#11111E" />
 
-      <View style={styles.monitorFrame}>
-        <View style={styles.monitorBezel}>
-          <ImageBackground
-            source={leopardPrintBackground}
-            resizeMode="cover"
-            style={styles.display}
-            imageStyle={styles.leopardBackgroundImage}
+      <ImageBackground
+        source={leopardPrintBackground}
+        resizeMode="cover"
+        style={styles.background}
+      >
+        <View style={styles.topBar}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+            onPress={onBack}
+            style={({ pressed }) => [
+              styles.headerButton,
+              pressed && styles.buttonPressed,
+            ]}
           >
-            <View style={styles.topBar}>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Go back"
-                onPress={onBack}
-                style={({ pressed }) => [
-                  styles.topBarButton,
-                  pressed && styles.buttonPressed,
-                ]}
-              >
-                <Text style={styles.topBarButtonText}>{"< BACK"}</Text>
-              </Pressable>
+            <Text style={styles.headerButtonText}>{"< BACK"}</Text>
+          </Pressable>
 
-              <Text style={styles.brand}>BUILD OUTFIT</Text>
+          <Text numberOfLines={1} style={styles.brand}>
+            BUILD OUTFIT
+          </Text>
 
-              <View style={styles.modeTab}>
-                <Text style={styles.modeTabText}>MIX + MATCH</Text>
+          <View style={styles.modeLabel}>
+            <Text style={styles.modeLabelText}>MIX + MATCH</Text>
+          </View>
+        </View>
+
+        <View style={styles.content}>
+          {showingResult ? (
+            <View style={styles.resultPanel}>
+              <View style={styles.resultHeader}>
+                <Text style={styles.resultHeaderText}>
+                  {isGenerating
+                    ? "CREATING YOUR LOOK"
+                    : generationError
+                    ? "GENERATION ERROR"
+                    : "YOUR LOOK"}
+                </Text>
+              </View>
+
+              <View style={styles.resultBody}>
+                {isGenerating ? (
+                  <>
+                    <ActivityIndicator size="large" />
+                    <Text style={styles.resultStatus}>
+                      GENERATING YOUR OUTFIT...
+                    </Text>
+                    <Text style={styles.resultHint}>
+                      MATCHING YOUR SELECTED TOP + BOTTOM.
+                    </Text>
+                  </>
+                ) : generationError ? (
+                  <>
+                    <Text style={styles.errorMessage}>{generationError}</Text>
+                    <Text style={styles.resultHint}>
+                      CHANGE THE LOOK OR TRY AGAIN.
+                    </Text>
+                  </>
+                ) : generatedImageUri ? (
+                  <Image
+                    source={{ uri: generatedImageUri }}
+                    resizeMode="contain"
+                    style={styles.generatedImage}
+                  />
+                ) : null}
               </View>
             </View>
-
-            <ScrollView
-              style={styles.scrollView}
-              contentContainerStyle={styles.content}
-              showsVerticalScrollIndicator={false}
-            >
+          ) : (
+            <View style={styles.carouselStack}>
               <Carousel
                 title="TOPS"
                 items={tops}
                 selectedIndex={selectedTopIndex}
                 onSelectedIndexChange={(index) => {
                   setSelectedTopIndex(index);
-                  setGeneratedImageUri(null);
-                  setGenerationError(null);
+                  clearGeneratedResult();
                 }}
               />
-
-              <View style={styles.carouselSpacer} />
 
               <Carousel
                 title="BOTTOMS"
@@ -198,22 +220,58 @@ export default function BuildOutfitPage({
                 selectedIndex={selectedBottomIndex}
                 onSelectedIndexChange={(index) => {
                   setSelectedBottomIndex(index);
-                  setGeneratedImageUri(null);
-                  setGenerationError(null);
+                  clearGeneratedResult();
                 }}
               />
+            </View>
+          )}
 
-              <View style={styles.actionRow}>
+          <View style={styles.actionRow}>
+            {showingResult ? (
+              <>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Change outfit selection"
+                  onPress={clearGeneratedResult}
+                  style={({ pressed }) => [
+                    styles.primaryAction,
+                    pressed && styles.buttonPressed,
+                  ]}
+                >
+                  <Text style={styles.primaryActionText}>CHANGE LOOK</Text>
+                </Pressable>
+
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Generate outfit again"
+                  disabled={isGenerating || !selectedTop || !selectedBottom}
+                  onPress={handleDressMe}
+                  style={({ pressed }) => [
+                    styles.secondaryAction,
+                    (isGenerating || !selectedTop || !selectedBottom) &&
+                      styles.disabledButton,
+                    pressed &&
+                      !isGenerating &&
+                      selectedTop &&
+                      selectedBottom &&
+                      styles.buttonPressed,
+                  ]}
+                >
+                  <Text style={styles.secondaryActionText}>TRY AGAIN</Text>
+                </Pressable>
+              </>
+            ) : (
+              <>
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel="Browse closet"
                   onPress={onBrowseCloset ?? onBack}
                   style={({ pressed }) => [
-                    styles.browseButton,
+                    styles.primaryAction,
                     pressed && styles.buttonPressed,
                   ]}
                 >
-                  <Text style={styles.browseButtonText}>BROWSE</Text>
+                  <Text style={styles.primaryActionText}>BROWSE</Text>
                 </Pressable>
 
                 <Pressable
@@ -222,87 +280,28 @@ export default function BuildOutfitPage({
                   disabled={!canGenerate}
                   onPress={handleDressMe}
                   style={({ pressed }) => [
-                    styles.dressMeButton,
+                    styles.secondaryAction,
                     !canGenerate && styles.disabledButton,
                     pressed && canGenerate && styles.buttonPressed,
                   ]}
                 >
-                  <Text style={styles.dressMeButtonText}>
-                    {isGenerating ? "WORKING..." : "DRESS ME"}
-                  </Text>
+                  <Text style={styles.secondaryActionText}>DRESS ME</Text>
                 </Pressable>
-              </View>
-
-              {isGenerating && (
-                <View style={styles.resultPanel}>
-                  <ActivityIndicator size="large" />
-                  <Text style={styles.resultStatus}>
-                    GENERATING YOUR OUTFIT...
-                  </Text>
-                  <Text style={styles.resultHint}>
-                    THIS CAN TAKE A LITTLE WHILE.
-                  </Text>
-                </View>
-              )}
-
-              {generationError && (
-                <View style={styles.errorPanel}>
-                  <Text style={styles.errorTitle}>GENERATION ERROR</Text>
-                  <Text style={styles.errorMessage}>{generationError}</Text>
-                </View>
-              )}
-
-              {generatedImageUri && !isGenerating && (
-                <View style={styles.resultPanel}>
-                  <View style={styles.resultHeader}>
-                    <Text style={styles.resultHeaderText}>YOUR LOOK</Text>
-                  </View>
-
-                  <Image
-                    source={{ uri: generatedImageUri }}
-                    resizeMode="contain"
-                    style={styles.generatedImage}
-                  />
-
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel="Generate this outfit again"
-                    onPress={handleDressMe}
-                    style={({ pressed }) => [
-                      styles.regenerateButton,
-                      pressed && styles.buttonPressed,
-                    ]}
-                  >
-                    <Text style={styles.regenerateButtonText}>TRY AGAIN</Text>
-                  </Pressable>
-                </View>
-              )}
-
-              {(!selectedTop || !selectedBottom) && (
-                <View style={styles.emptyPanel}>
-                  <Text style={styles.emptyTitle}>MORE CLOTHES NEEDED</Text>
-                  <Text style={styles.emptyText}>
-                    ADD AT LEAST ONE TOP AND ONE BOTTOM BEFORE BUILDING AN
-                    OUTFIT.
-                  </Text>
-                </View>
-              )}
-            </ScrollView>
-
-            <View style={styles.bottomBar}>
-              <Text
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                style={styles.bottomBarText}
-              >
-                TOPS · BOTTOMS · MIX + MATCH · DRESS ME
-              </Text>
-            </View>
-
-            <Scanlines />
-          </ImageBackground>
+              </>
+            )}
+          </View>
         </View>
-      </View>
+
+        <View style={styles.bottomBar}>
+          <Text
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            style={styles.bottomBarText}
+          >
+            TOPS · BOTTOMS · MIX + MATCH · DRESS ME
+          </Text>
+        </View>
+      </ImageBackground>
     </SafeAreaView>
   );
 }
@@ -310,306 +309,209 @@ export default function BuildOutfitPage({
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#17131A",
-    paddingHorizontal: 7,
-    paddingVertical: 6,
+    width: "100%",
+    backgroundColor: "#11111E",
   },
 
-  monitorFrame: {
+  background: {
     flex: 1,
     width: "100%",
-    maxWidth: 680,
-    alignSelf: "center",
-    backgroundColor: "#433830",
-    borderWidth: 5,
-    borderTopColor: "#807369",
-    borderLeftColor: "#807369",
-    borderRightColor: "#201A17",
-    borderBottomColor: "#201A17",
-    borderRadius: 21,
-    padding: 7,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.65,
-    shadowRadius: 15,
-    elevation: 16,
-  },
-
-  monitorBezel: {
-    flex: 1,
-    backgroundColor: "#27232A",
-    borderWidth: 4,
-    borderTopColor: "#5E5662",
-    borderLeftColor: "#5E5662",
-    borderRightColor: "#0F0D12",
-    borderBottomColor: "#0F0D12",
-    borderRadius: 14,
-    padding: 6,
-  },
-
-  display: {
-    flex: 1,
-    position: "relative",
     overflow: "hidden",
-    backgroundColor: "#B69C78",
-    borderWidth: 3,
-    borderColor: "#090911",
-    borderRadius: 8,
-  },
-
-  leopardBackgroundImage: {
-    borderRadius: 5,
   },
 
   topBar: {
-    minHeight: 50,
+    height: 48,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#141426",
-    borderBottomWidth: 4,
-    borderBottomColor: "#070711",
-    paddingHorizontal: 7,
+    backgroundColor: "#11111E",
+    borderBottomWidth: 2,
+    borderBottomColor: "#080810",
+    paddingHorizontal: 10,
     zIndex: 2,
   },
 
-  topBarButton: {
-    backgroundColor: "#9C9CA8",
-    borderWidth: 3,
-    borderTopColor: "#EEEEF5",
-    borderLeftColor: "#EEEEF5",
-    borderRightColor: "#24242C",
-    borderBottomColor: "#24242C",
-    paddingHorizontal: 7,
+  headerButton: {
+    minWidth: 68,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#A7A7B0",
+    borderWidth: 2,
+    borderTopColor: "#F1F1F6",
+    borderLeftColor: "#F1F1F6",
+    borderRightColor: "#4A4A52",
+    borderBottomColor: "#4A4A52",
+    paddingHorizontal: 8,
     paddingVertical: 6,
   },
 
-  topBarButtonText: {
-    color: "#15151E",
+  headerButtonText: {
+    color: "#171720",
     fontFamily: RETRO_FONT,
     fontSize: 8,
     fontWeight: "700",
-    letterSpacing: 0.4,
+    letterSpacing: 0.25,
   },
 
   brand: {
     flex: 1,
-    color: "#BAC6FF",
+    color: "#C8D0FF",
     fontFamily: RETRO_FONT,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700",
     letterSpacing: 1.5,
     textAlign: "center",
     textShadowColor: "#536BFF",
     textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 5,
+    textShadowRadius: 4,
   },
 
-  modeTab: {
-    backgroundColor: "#1B1B30",
-    borderWidth: 2,
-    borderTopColor: "#8B93C5",
-    borderLeftColor: "#8B93C5",
-    borderRightColor: "#080810",
-    borderBottomColor: "#080810",
+  modeLabel: {
+    minWidth: 76,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#18182A",
+    borderWidth: 1,
+    borderColor: "#59618A",
     paddingHorizontal: 7,
-    paddingVertical: 6,
+    paddingVertical: 7,
   },
 
-  modeTabText: {
-    color: "#D2D7FF",
+  modeLabelText: {
+    color: "#D5DAFF",
     fontFamily: RETRO_FONT,
-    fontSize: 8,
+    fontSize: 7,
     fontWeight: "700",
-    letterSpacing: 0.6,
-  },
-
-  scrollView: {
-    flex: 1,
-    zIndex: 2,
+    letterSpacing: 0.5,
   },
 
   content: {
-    width: "78%",
-    maxWidth: 520,
+    flex: 1,
+    width: "90%",
+    maxWidth: 500,
     alignSelf: "center",
-    paddingTop: 15,
-    paddingBottom: 24,
+    paddingTop: 10,
+    paddingBottom: 8,
+    zIndex: 2,
   },
 
-  carouselSpacer: {
-    height: 14,
+  carouselStack: {
+    flex: 1,
+    minHeight: 0,
+  },
+
+  carouselGap: {
+    height: 0,
   },
 
   actionRow: {
+    height: 48,
     flexDirection: "row",
-    gap: 12,
-    marginTop: 18,
+    gap: 10,
+    marginTop: 8,
   },
 
-  browseButton: {
+  primaryAction: {
     flex: 1,
-    minHeight: 65,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#293DE1",
-    borderWidth: 5,
-    borderTopColor: "#DDE4FF",
-    borderLeftColor: "#DDE4FF",
-    borderRightColor: "#11142D",
-    borderBottomColor: "#11142D",
-    shadowColor: "#101226",
-    shadowOffset: { width: 5, height: 6 },
-    shadowOpacity: 0.6,
-    shadowRadius: 0,
-    elevation: 8,
+    backgroundColor: "#263DDC",
+    borderWidth: 2,
+    borderTopColor: "#BFC9FF",
+    borderLeftColor: "#BFC9FF",
+    borderRightColor: "#14183F",
+    borderBottomColor: "#14183F",
   },
 
-  browseButtonText: {
+  primaryActionText: {
     color: "#FFFFFF",
     fontFamily: RETRO_FONT,
-    fontSize: 15,
+    fontSize: 12,
     fontWeight: "700",
-    letterSpacing: 1.2,
+    letterSpacing: 1,
     textShadowColor: "#10132D",
-    textShadowOffset: { width: 2, height: 2 },
+    textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 0,
   },
 
-  dressMeButton: {
-    flex: 1.15,
-    minHeight: 65,
+  secondaryAction: {
+    flex: 1.12,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#A5A4AE",
-    borderWidth: 5,
+    backgroundColor: "#A9A9B2",
+    borderWidth: 2,
     borderTopColor: "#F1F0F7",
     borderLeftColor: "#F1F0F7",
-    borderRightColor: "#20202B",
-    borderBottomColor: "#20202B",
-    shadowColor: "#181821",
-    shadowOffset: { width: 5, height: 6 },
-    shadowOpacity: 0.58,
-    shadowRadius: 0,
-    elevation: 8,
+    borderRightColor: "#44444D",
+    borderBottomColor: "#44444D",
   },
 
-  dressMeButtonText: {
+  secondaryActionText: {
     color: "#171720",
     fontFamily: RETRO_FONT,
-    fontSize: 16,
+    fontSize: 12,
     fontWeight: "700",
-    letterSpacing: 1.2,
+    letterSpacing: 1,
     textShadowColor: "#EEEEF4",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 0,
   },
 
   disabledButton: {
-    opacity: 0.5,
+    opacity: 0.45,
   },
 
   resultPanel: {
-    width: "100%",
-    alignItems: "center",
-    backgroundColor: "#AABAD8",
-    borderWidth: 5,
-    borderTopColor: "#EFF3FF",
-    borderLeftColor: "#EFF3FF",
-    borderRightColor: "#30364C",
-    borderBottomColor: "#30364C",
-    marginTop: 18,
-    padding: 14,
-    shadowColor: "#090913",
-    shadowOffset: { width: 5, height: 6 },
-    shadowOpacity: 0.55,
-    shadowRadius: 0,
-    elevation: 8,
+    flex: 1,
+    minHeight: 0,
+    overflow: "hidden",
+    backgroundColor: "#B8C7E4",
+    borderWidth: 2,
+    borderColor: "#202237",
   },
 
   resultHeader: {
-    width: "100%",
-    minHeight: 34,
+    height: 30,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#17172A",
-    borderBottomWidth: 3,
-    borderBottomColor: "#4A506D",
-    marginBottom: 12,
+    borderBottomWidth: 2,
+    borderBottomColor: "#59618A",
   },
 
   resultHeaderText: {
     color: "#D5DAFF",
     fontFamily: RETRO_FONT,
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "700",
-    letterSpacing: 1.6,
+    letterSpacing: 1.4,
+  },
+
+  resultBody: {
+    flex: 1,
+    minHeight: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F3F3F0",
+    padding: 10,
   },
 
   resultStatus: {
     color: "#171824",
     fontFamily: RETRO_FONT,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700",
-    letterSpacing: 1,
-    marginTop: 12,
+    letterSpacing: 0.9,
+    marginTop: 10,
     textAlign: "center",
   },
 
   resultHint: {
     color: "#474D63",
     fontFamily: RETRO_FONT,
-    fontSize: 9,
+    fontSize: 8,
     fontWeight: "700",
-    marginTop: 7,
-    textAlign: "center",
-  },
-
-  generatedImage: {
-    width: "100%",
-    height: 430,
-    backgroundColor: "#C1CCE5",
-  },
-
-  regenerateButton: {
-    width: "70%",
-    minHeight: 46,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#9C9CA8",
-    borderWidth: 4,
-    borderTopColor: "#EEEEF5",
-    borderLeftColor: "#EEEEF5",
-    borderRightColor: "#24242C",
-    borderBottomColor: "#24242C",
-    marginTop: 12,
-  },
-
-  regenerateButtonText: {
-    color: "#171720",
-    fontFamily: RETRO_FONT,
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1,
-  },
-
-  errorPanel: {
-    width: "100%",
-    backgroundColor: "#B8A4A7",
-    borderWidth: 4,
-    borderTopColor: "#F1DDE0",
-    borderLeftColor: "#F1DDE0",
-    borderRightColor: "#4A2B31",
-    borderBottomColor: "#4A2B31",
-    marginTop: 18,
-    padding: 14,
-  },
-
-  errorTitle: {
-    color: "#3B171D",
-    fontFamily: RETRO_FONT,
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1,
+    lineHeight: 12,
+    marginTop: 6,
     textAlign: "center",
   },
 
@@ -618,75 +520,38 @@ const styles = StyleSheet.create({
     fontFamily: RETRO_FONT,
     fontSize: 9,
     lineHeight: 14,
-    marginTop: 8,
     textAlign: "center",
   },
 
-  emptyPanel: {
+  generatedImage: {
     width: "100%",
-    backgroundColor: "#AABAD8",
-    borderWidth: 4,
-    borderTopColor: "#EFF3FF",
-    borderLeftColor: "#EFF3FF",
-    borderRightColor: "#30364C",
-    borderBottomColor: "#30364C",
-    marginTop: 18,
-    padding: 15,
-  },
-
-  emptyTitle: {
-    color: "#171824",
-    fontFamily: RETRO_FONT,
-    fontSize: 13,
-    fontWeight: "700",
-    letterSpacing: 1,
-    textAlign: "center",
-  },
-
-  emptyText: {
-    color: "#34394D",
-    fontFamily: RETRO_FONT,
-    fontSize: 9,
-    lineHeight: 14,
-    marginTop: 8,
-    textAlign: "center",
+    height: "100%",
+    backgroundColor: "#F3F3F0",
   },
 
   bottomBar: {
-    minHeight: 42,
+    height: 32,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#141426",
-    borderTopWidth: 4,
-    borderTopColor: "#070711",
-    paddingHorizontal: 9,
+    backgroundColor: "#11111E",
+    borderTopWidth: 2,
+    borderTopColor: "#080810",
+    paddingHorizontal: 10,
     zIndex: 2,
   },
 
   bottomBarText: {
     width: "100%",
-    color: "#C3CAFA",
+    color: "#C7CEFF",
     fontFamily: RETRO_FONT,
-    fontSize: 10,
+    fontSize: 8,
     fontWeight: "700",
-    letterSpacing: 1.15,
+    letterSpacing: 0.9,
     textAlign: "center",
   },
 
-  scanlineLayer: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: "space-between",
-    zIndex: 10,
-  },
-
-  scanline: {
-    width: "100%",
-    height: 1,
-    backgroundColor: "rgba(14, 16, 39, 0.1)",
-  },
-
   buttonPressed: {
-    opacity: 0.84,
-    transform: [{ translateX: 2 }, { translateY: 2 }],
+    opacity: 0.82,
+    transform: [{ translateX: 1 }, { translateY: 1 }],
   },
 });

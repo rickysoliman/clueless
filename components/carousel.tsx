@@ -55,13 +55,11 @@ export default function Carousel({
 
       <View style={styles.imageWindow}>
         {selectedItem ? (
-          <>
-            <Image
-              source={selectedItem.catalogPhotos.front}
-              resizeMode="contain"
-              style={styles.image}
-            />
-          </>
+          <Image
+            source={selectedItem.catalogPhotos.front}
+            resizeMode="contain"
+            style={styles.image}
+          />
         ) : (
           <View style={styles.placeholder}>
             <Text style={styles.placeholderName}>NO {title} FOUND</Text>
@@ -72,7 +70,7 @@ export default function Carousel({
       <View style={styles.controls}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={`Jump backward through ${title.toLowerCase()}`}
+          accessibilityLabel={`Previous ${title.toLowerCase()}`}
           disabled={items.length < 2}
           onPress={() => moveBy(-1)}
           style={({ pressed }) => [
@@ -88,19 +86,19 @@ export default function Carousel({
           accessibilityRole="button"
           accessibilityLabel={`Next ${title.toLowerCase()}`}
           disabled={items.length < 2}
-          // onPress={() => moveBy(1)}
+          onPress={() => moveBy(1)}
           style={({ pressed }) => [
             styles.controlButton,
             pressed && styles.buttonPressed,
             items.length < 2 && styles.disabledButton,
           ]}
         >
-          <Text style={styles.controlText}>{"▶︎"}</Text>
+          <Text style={styles.playText}>{"▶"}</Text>
         </Pressable>
 
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={`Jump forward through ${title.toLowerCase()}`}
+          accessibilityLabel={`Next ${title.toLowerCase()}`}
           disabled={items.length < 2}
           onPress={() => moveBy(1)}
           style={({ pressed }) => [
@@ -118,60 +116,51 @@ export default function Carousel({
 
 const styles = StyleSheet.create({
   wrapper: {
+    flex: 1,
+    minHeight: 0,
     width: "100%",
-    backgroundColor: "#0C0D18",
-    borderWidth: 4,
-    borderTopColor: "#DDE3FF",
-    borderLeftColor: "#DDE3FF",
-    borderRightColor: "#24283B",
-    borderBottomColor: "#24283B",
-    shadowColor: "#090913",
-    shadowOffset: { width: 5, height: 6 },
-    shadowOpacity: 0.55,
-    shadowRadius: 0,
-    elevation: 8,
+    overflow: "hidden",
+    backgroundColor: "#11121E",
+    borderWidth: 2,
+    borderColor: "#202237",
   },
 
   titleBar: {
-    minHeight: 34,
+    height: 28,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#18182A",
-    borderBottomWidth: 3,
-    borderBottomColor: "#555D80",
+    backgroundColor: "#17172A",
+    borderBottomWidth: 2,
+    borderBottomColor: "#59618A",
     paddingHorizontal: 10,
   },
 
   title: {
-    color: "#D5DBFF",
+    color: "#D8DEFF",
     fontFamily: RETRO_FONT,
-    fontSize: 11,
+    fontSize: 9,
     fontWeight: "700",
-    letterSpacing: 1.7,
+    letterSpacing: 1.5,
     textShadowColor: "#526BFF",
     textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 4,
+    textShadowRadius: 3,
   },
 
   counter: {
-    color: "#AEB9F0",
+    color: "#B5BFF2",
     fontFamily: RETRO_FONT,
-    fontSize: 9,
+    fontSize: 8,
     fontWeight: "700",
   },
 
   imageWindow: {
-    height: 210,
-    position: "relative",
+    flex: 1,
+    minHeight: 0,
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
-    backgroundColor: "#ADBDE0",
-    borderTopWidth: 3,
-    borderTopColor: "#EFF3FF",
-    borderBottomWidth: 3,
-    borderBottomColor: "#31374C",
+    backgroundColor: "#ffffff",
   },
 
   image: {
@@ -180,99 +169,63 @@ const styles = StyleSheet.create({
   },
 
   placeholder: {
-    width: "84%",
-    minHeight: 140,
+    width: "88%",
+    height: "72%",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#9EAED0",
-    borderWidth: 2,
-    borderTopColor: "#E9EEFF",
-    borderLeftColor: "#E9EEFF",
-    borderRightColor: "#4B536D",
-    borderBottomColor: "#4B536D",
-    paddingHorizontal: 16,
-    paddingVertical: 20,
-  },
-
-  placeholderLabel: {
-    color: "#4E5670",
-    fontFamily: RETRO_FONT,
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 1.4,
-    marginBottom: 8,
+    backgroundColor: "#C2CCE2",
+    borderWidth: 1,
+    borderColor: "#7E88A2",
+    paddingHorizontal: 12,
   },
 
   placeholderName: {
     color: "#171824",
     fontFamily: RETRO_FONT,
-    fontSize: 17,
-    fontWeight: "700",
-    letterSpacing: 1,
-    textAlign: "center",
-  },
-
-  placeholderHint: {
-    color: "#4A5065",
-    fontFamily: RETRO_FONT,
-    fontSize: 8,
-    lineHeight: 12,
-    marginTop: 10,
-    textAlign: "center",
-  },
-
-  itemNameBar: {
-    position: "absolute",
-    left: 8,
-    right: 8,
-    bottom: 7,
-    minHeight: 26,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(20, 20, 38, 0.88)",
-    borderWidth: 1,
-    borderColor: "#6974A4",
-    paddingHorizontal: 8,
-  },
-
-  itemName: {
-    color: "#E3E7FF",
-    fontFamily: RETRO_FONT,
-    fontSize: 9,
+    fontSize: 12,
     fontWeight: "700",
     letterSpacing: 0.8,
+    textAlign: "center",
   },
 
   controls: {
+    height: 36,
     flexDirection: "row",
-    gap: 5,
     backgroundColor: "#11121E",
-    padding: 6,
+    borderTopWidth: 2,
+    borderTopColor: "#202237",
+    padding: 4,
+    gap: 4,
   },
 
   controlButton: {
     flex: 1,
-    minHeight: 42,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#9B9CA9",
-    borderWidth: 3,
-    borderTopColor: "#F2F1F8",
-    borderLeftColor: "#F2F1F8",
-    borderRightColor: "#24242D",
-    borderBottomColor: "#24242D",
+    backgroundColor: "#A7A7B0",
+    borderWidth: 1,
+    borderTopColor: "#F1F1F6",
+    borderLeftColor: "#F1F1F6",
+    borderRightColor: "#52525B",
+    borderBottomColor: "#52525B",
   },
 
   controlText: {
     color: "#171720",
     fontFamily: RETRO_FONT,
-    fontSize: 17,
+    fontSize: 14,
     fontWeight: "700",
     letterSpacing: -1,
   },
 
+  playText: {
+    color: "#171720",
+    fontSize: 12,
+    fontWeight: "700",
+  },
+
   disabledButton: {
-    opacity: 0.45,
+    opacity: 0.4,
   },
 
   buttonPressed: {
