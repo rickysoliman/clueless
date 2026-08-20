@@ -1,15 +1,15 @@
+import { GoogleGenAI } from "@google/genai";
 import cors from "cors";
 import "dotenv/config";
 import express from "express";
 import multer from "multer";
 import fs from "node:fs";
-import OpenAI, { toFile } from "openai";
 
 const app = express();
 const upload = multer({ dest: "uploads/" });
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
 });
 
 app.use(cors());
@@ -35,65 +35,123 @@ app.post(
     }
 
     try {
-      const personFile = await toFile(
-        fs.readFileSync(person.path),
-        person.originalname,
-        { type: person.mimetype }
-      );
+      // Convert the uploaded images to base64 for Gemini.
+      const personBase64 = fs.readFileSync(person.path).toString("base64");
 
-      const topFile = await toFile(
-        fs.readFileSync(top.path),
-        top.originalname,
-        { type: top.mimetype }
-      );
+      const topBase64 = fs.readFileSync(top.path).toString("base64");
 
-      const bottomFile = await toFile(
-        fs.readFileSync(bottom.path),
-        bottom.originalname,
-        { type: bottom.mimetype }
-      );
+      const bottomBase64 = fs.readFileSync(bottom.path).toString("base64");
 
-      const result = await openai.images.edit({
-        model: "gpt-image-1",
+      const prompt = `
+Create a photorealistic full-body studio fashion photograph.
 
-        image: [personFile, topFile, bottomFile],
+You are being given exactly three reference images:
 
-        prompt: `
-Create a photorealistic full-body studio photograph.
+REFERENCE IMAGE 1:
+The person who must appear in the generated photograph.
 
-Reference image 1 is the person.
-Reference image 2 is the exact top they should be wearing.
-Reference image 3 is the exact bottoms they should be wearing.
+REFERENCE IMAGE 2:
+The exact top the person must be wearing.
 
-Preserve the person's facial features, hairstyle, body proportions,
-skin tone, and overall appearance as faithfully as possible.
+REFERENCE IMAGE 3:
+The exact bottoms the person must be wearing.
 
-Dress the person in the exact clothing shown in reference images
-2 and 3. Preserve the clothing colors, materials, patterns,
-silhouette, and important construction details.
+Preserve the identity of the person from reference image 1 as faithfully
+as possible, including their facial features, hairstyle, skin tone,
+body proportions, and overall physical appearance.
 
-The person should be standing naturally and looking toward the camera.
+Dress the person in the exact clothing shown in reference images 2 and 3.
 
-Show the entire body from head to toe.
+Preserve the garments faithfully, including their:
+- colors
+- materials
+- patterns
+- fit
+- silhouette
+- buttons
+- seams
+- pockets
+- construction details
 
-Use a clean solid white professional studio background.
-The result should look like a realistic fashion photograph,
-not an illustration.
-        `.trim(),
+Do not redesign or substitute the garments.
 
-        input_fidelity: "high",
-        size: "1024x1536",
-        quality: "high",
+Create a realistic photograph of the person naturally wearing this outfit.
+
+The person should:
+- be standing naturally
+- face the camera
+- look toward the camera
+- have their entire body visible from head to toe
+
+Use a clean solid white professional photography studio background.
+
+Use realistic studio lighting.
+
+The final result should look like a high-end professional fashion
+photograph, not an illustration, painting, or digital artwork.
+      `.trim();
+
+      const contents = [
+        {
+          text: prompt,
+        },
+
+        // Reference 1: person
+        {
+          inlineData: {
+            mimeType: person.mimetype,
+            data: personBase64,
+          },
+        },
+
+        // Reference 2: top
+        {
+          inlineData: {
+            mimeType: top.mimetype,
+            data: topBase64,
+          },
+        },
+
+        // Reference 3: bottoms
+        {
+          inlineData: {
+            mimeType: bottom.mimetype,
+            data: bottomBase64,
+          },
+        },
+      ];
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3.1-flash-image",
+
+        contents,
+
+        config: {
+          responseModalities: ["TEXT", "IMAGE"],
+
+          responseFormat: {
+            image: {
+              aspectRatio: "9:16",
+              imageSize: "1K",
+            },
+          },
+        },
       });
 
-      const imageBase64 = result.data?.[0]?.b64_json;
+      const parts = response.candidates?.[0]?.content?.parts ?? [];
 
-      if (!imageBase64) {
-        throw new Error("OpenAI did not return an image");
+      const imagePart = parts.find((part) => part.inlineData?.data);
+
+      if (!imagePart?.inlineData?.data) {
+        throw new Error("Gemini did not return a generated image");
       }
 
+      const mimeType = imagePart.inlineData.mimeType ?? "image/png";
+
+      const imageBase64 = imagePart.inlineData.data;
+
       res.json({
-        image: `data:image/png;base64,${imageBase64}`,
+        image: `data:${mimeType};base64,${imageBase64}`,
       });
     } catch (error) {
       console.error(error);
@@ -113,5 +171,5 @@ not an illustration.
 );
 
 app.listen(3001, "0.0.0.0", () => {
-  console.log("Dress Me server running on port 3001");
+  console.log("Dress Me Gemini server running on port 3001");
 });
