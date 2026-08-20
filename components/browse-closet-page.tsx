@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { dummyData, type WardrobeItem } from "../assets/dummy-data/dummy-data";
 import { browseClosetStyles as styles } from "../styles/app-styles";
+import ItemDetailsPage from "./item-details-page";
 
 const leopardPrintBackground = require("../assets/images/leopard-print-background.png");
 
@@ -35,6 +36,7 @@ export default function BrowseClosetPage({
   const [selectedBottomId, setSelectedBottomId] = useState<
     string | undefined
   >();
+  const [detailsItem, setDetailsItem] = useState<WardrobeItem | null>(null);
 
   const clothingItems = useMemo(
     () =>
@@ -53,8 +55,7 @@ export default function BrowseClosetPage({
     return clothingItems.filter((item) => item.type === filter);
   }, [clothingItems, filter]);
 
-  const selectedCount =
-    (selectedTopId ? 1 : 0) + (selectedBottomId ? 1 : 0);
+  const selectedCount = (selectedTopId ? 1 : 0) + (selectedBottomId ? 1 : 0);
 
   function toggleItem(item: WardrobeItem) {
     if (item.type === "top") {
@@ -94,11 +95,8 @@ export default function BrowseClosetPage({
     return (
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`${isSelected ? "Deselect" : "Select"} ${
-          item.name
-        }`}
-        accessibilityState={{ selected: isSelected }}
-        onPress={() => toggleItem(item)}
+        accessibilityLabel={`View ${item.name} details`}
+        onPress={() => setDetailsItem(item)}
         style={({ pressed }) => [
           styles.itemCell,
           pressed && styles.itemCellPressed,
@@ -118,22 +116,29 @@ export default function BrowseClosetPage({
           >
             <Text
               numberOfLines={1}
-              style={[
-                styles.itemTitle,
-                isSelected && styles.itemTitleSelected,
-              ]}
+              style={[styles.itemTitle, isSelected && styles.itemTitleSelected]}
             >
               {item.name}
             </Text>
 
-            <View
+            <Pressable
+              accessibilityRole="checkbox"
+              accessibilityLabel={`${isSelected ? "Deselect" : "Select"} ${
+                item.name
+              } for an outfit`}
+              accessibilityState={{ checked: isSelected }}
+              hitSlop={8}
+              onPress={(event) => {
+                event.stopPropagation();
+                toggleItem(item);
+              }}
               style={[
                 styles.selectionBox,
                 isSelected && styles.selectionBoxSelected,
               ]}
             >
               {isSelected && <Text style={styles.selectionCheck}>✓</Text>}
-            </View>
+            </Pressable>
           </View>
 
           <View style={styles.imageWell}>
@@ -151,6 +156,12 @@ export default function BrowseClosetPage({
           </View>
         </View>
       </Pressable>
+    );
+  }
+
+  if (detailsItem) {
+    return (
+      <ItemDetailsPage item={detailsItem} onBack={() => setDetailsItem(null)} />
     );
   }
 

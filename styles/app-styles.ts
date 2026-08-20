@@ -1320,3 +1320,195 @@ export const landingPageStyles = StyleSheet.create({
     transform: [{ translateX: 1 }, { translateY: 1 }],
   },
 });
+
+export const itemDetailsStyles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: "#000000",
+  },
+
+  photoList: {
+    flex: 1,
+    backgroundColor: "#000000",
+  },
+
+  photoPage: {
+    flex: 1,
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#000000",
+  },
+
+  photo: {
+    width: "100%",
+    height: "100%",
+  },
+
+  emptyPhotoArea: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#000000",
+    paddingHorizontal: 24,
+  },
+
+  emptyPhotoText: {
+    color: "#FFFFFF",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 14,
+    textAlign: "center",
+  },
+
+  headerOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.48)",
+  },
+
+  headerContent: {
+    minHeight: 72,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 14,
+    paddingBottom: 10,
+  },
+
+  backButton: {
+    width: 42,
+    height: 42,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  overlayButtonPressed: {
+    opacity: 0.55,
+  },
+
+  backButtonText: {
+    color: "#FFFFFF",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 40,
+    lineHeight: 40,
+    marginTop: -4,
+  },
+
+  headerTextContainer: {
+    flex: 1,
+    alignItems: "center",
+    paddingHorizontal: 8,
+  },
+
+  itemName: {
+    color: "#FFFFFF",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 17,
+    fontWeight: "700",
+    textAlign: "center",
+  },
+
+  itemType: {
+    color: "rgba(255, 255, 255, 0.72)",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 1.5,
+    marginTop: 4,
+  },
+
+  headerSpacer: {
+    width: 42,
+    height: 42,
+  },
+
+  footerOverlay: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.52)",
+  },
+
+  footerContent: {
+    paddingHorizontal: 18,
+    paddingTop: 14,
+    paddingBottom: 8,
+  },
+
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+
+  infoBlock: {
+    flex: 1,
+    minWidth: 0,
+    paddingRight: 12,
+    marginRight: 12,
+    borderRightWidth: 1,
+    borderRightColor: "rgba(255, 255, 255, 0.25)",
+  },
+
+  infoBlockLast: {
+    paddingRight: 0,
+    marginRight: 0,
+    borderRightWidth: 0,
+  },
+
+  infoLabel: {
+    color: "rgba(255, 255, 255, 0.55)",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 9,
+    fontWeight: "700",
+    letterSpacing: 1,
+  },
+
+  infoValue: {
+    color: "#FFFFFF",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 12,
+    fontWeight: "700",
+    marginTop: 3,
+  },
+
+  photoIndicatorRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 14,
+  },
+
+  photoCount: {
+    color: "rgba(255, 255, 255, 0.8)",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 10,
+    marginRight: 10,
+  },
+
+  dots: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "rgba(255, 255, 255, 0.35)",
+  },
+
+  dotActive: {
+    backgroundColor: "#FFFFFF",
+  },
+
+  footerHint: {
+    color: "rgba(255, 255, 255, 0.55)",
+    fontFamily: WINDOWS_FONT,
+    fontSize: 9,
+    textAlign: "center",
+    marginTop: 12,
+  },
+});

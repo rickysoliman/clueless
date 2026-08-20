@@ -8,6 +8,7 @@ type CarouselProps = {
   items: WardrobeItem[];
   selectedIndex: number;
   onSelectedIndexChange: (index: number) => void;
+  onOpenDetails?: () => void;
 };
 
 export default function Carousel({
@@ -15,6 +16,7 @@ export default function Carousel({
   items,
   selectedIndex,
   onSelectedIndexChange,
+  onOpenDetails,
 }: CarouselProps) {
   const selectedItem = items[selectedIndex];
 
@@ -81,13 +83,17 @@ export default function Carousel({
 
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={`Next ${title.toLowerCase()}`}
-            disabled={items.length < 2}
-            onPress={() => moveBy(1)}
+            accessibilityLabel={
+              selectedItem
+                ? `View ${selectedItem.name} details`
+                : `View ${title.toLowerCase()} details`
+            }
+            disabled={!selectedItem || !onOpenDetails}
+            onPress={onOpenDetails}
             style={({ pressed }) => [
               styles.controlButton,
               pressed && styles.buttonPressed,
-              items.length < 2 && styles.disabledButton,
+              (!selectedItem || !onOpenDetails) && styles.disabledButton,
             ]}
           >
             <Text style={styles.playText}>{"▶"}</Text>

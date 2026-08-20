@@ -14,6 +14,7 @@ import { dummyData, type WardrobeItem } from "../assets/dummy-data/dummy-data";
 import { dummyProfileData } from "../assets/dummy-data/dummy-profile-data";
 import { buildOutfitStyles as styles } from "../styles/app-styles";
 import Carousel from "./carousel";
+import ItemDetailsPage from "./item-details-page";
 
 const leopardPrintBackground = require("../assets/images/leopard-print-background.png");
 
@@ -168,6 +169,7 @@ export default function BuildOutfitPage({
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
+  const [detailsItem, setDetailsItem] = useState<WardrobeItem | null>(null);
 
   const selectedTop = tops[selectedTopIndex];
   const selectedBottom = bottoms[selectedBottomIndex];
@@ -207,6 +209,12 @@ export default function BuildOutfitPage({
     } finally {
       setIsGenerating(false);
     }
+  }
+
+  if (detailsItem) {
+    return (
+      <ItemDetailsPage item={detailsItem} onBack={() => setDetailsItem(null)} />
+    );
   }
 
   return (
@@ -274,8 +282,8 @@ export default function BuildOutfitPage({
                     {isGenerating
                       ? "Creating Your Look"
                       : generationError
-                        ? "Generation Error"
-                        : "Your Look"}
+                      ? "Generation Error"
+                      : "Your Look"}
                   </Text>
                 </View>
 
@@ -317,6 +325,11 @@ export default function BuildOutfitPage({
                     setSelectedTopIndex(index);
                     clearGeneratedResult();
                   }}
+                  onOpenDetails={() => {
+                    if (selectedTop) {
+                      setDetailsItem(selectedTop);
+                    }
+                  }}
                 />
 
                 <View style={styles.carouselGap} />
@@ -328,6 +341,11 @@ export default function BuildOutfitPage({
                   onSelectedIndexChange={(index) => {
                     setSelectedBottomIndex(index);
                     clearGeneratedResult();
+                  }}
+                  onOpenDetails={() => {
+                    if (selectedBottom) {
+                      setDetailsItem(selectedBottom);
+                    }
                   }}
                 />
               </View>
