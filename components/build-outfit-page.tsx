@@ -3,24 +3,19 @@ import {
   ActivityIndicator,
   Image,
   ImageBackground,
-  Platform,
+  ImageSourcePropType,
   Pressable,
   SafeAreaView,
   StatusBar,
-  StyleSheet,
   Text,
   View,
 } from "react-native";
 import { dummyData, type WardrobeItem } from "../assets/dummy-data/dummy-data";
+import { dummyProfileData } from "../assets/dummy-data/dummy-profile-data";
+import { buildOutfitStyles as styles } from "../styles/app-styles";
 import Carousel from "./carousel";
 
 const leopardPrintBackground = require("../assets/images/leopard-print-background.png");
-
-const WINDOWS_FONT = Platform.select({
-  ios: "Arial",
-  android: "sans-serif",
-  default: "Arial",
-});
 
 type BuildOutfitPageProps = {
   onBack: () => void;
@@ -34,6 +29,45 @@ type GenerateOutfitResponse = {
   error?: string;
 };
 
+type ReactNativeUploadFile = {
+  uri: string;
+  name: string;
+  type: string;
+};
+
+function getUploadFile(
+  source: ImageSourcePropType,
+  fallbackBaseName: string
+): ReactNativeUploadFile {
+  const resolved = Image.resolveAssetSource(source);
+
+  if (!resolved?.uri) {
+    throw new Error(`Unable to resolve ${fallbackBaseName} image.`);
+  }
+
+  const cleanUri = resolved.uri.split("?")[0].toLowerCase();
+
+  let extension = "jpg";
+  let mimeType = "image/jpeg";
+
+  if (cleanUri.endsWith(".png")) {
+    extension = "png";
+    mimeType = "image/png";
+  } else if (cleanUri.endsWith(".webp")) {
+    extension = "webp";
+    mimeType = "image/webp";
+  } else if (cleanUri.endsWith(".jpeg")) {
+    extension = "jpeg";
+    mimeType = "image/jpeg";
+  }
+
+  return {
+    uri: resolved.uri,
+    name: `${fallbackBaseName}.${extension}`,
+    type: mimeType,
+  };
+}
+
 async function requestGeneratedOutfit(
   top: WardrobeItem,
   bottom: WardrobeItem
@@ -42,24 +76,46 @@ async function requestGeneratedOutfit(
 
   if (!apiBaseUrl) {
     throw new Error(
-      "EXPO_PUBLIC_API_URL is not configured yet. Add your backend URL before generating an outfit."
+      "EXPO_PUBLIC_API_URL is not configured. Add the URL of your Cher AI backend to the Expo app environment."
     );
   }
 
+  const formData = new FormData();
+
+  const personFile = getUploadFile(
+    dummyProfileData.profilePicture,
+    "person-reference"
+  );
+
+  const topFile = getUploadFile(top.catalogPhotos.front, `top-${top.id}`);
+
+  const bottomFile = getUploadFile(
+    bottom.catalogPhotos.front,
+    `bottom-${bottom.id}`
+  );
+
+  formData.append("person", personFile as any);
+  formData.append("top", topFile as any);
+  formData.append("bottom", bottomFile as any);
+
+  formData.append("firstName", dummyProfileData.firstName);
+  formData.append("topName", top.name);
+  formData.append("bottomName", bottom.name);
+
   const response = await fetch(`${apiBaseUrl}/generate-outfit`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      topId: top.id,
-      bottomId: bottom.id,
-      topCatalogPhoto: top.catalogPhotos.front,
-      bottomCatalogPhoto: bottom.catalogPhotos.front,
-    }),
+    body: formData,
   });
 
-  const data = (await response.json()) as GenerateOutfitResponse;
+  let data: GenerateOutfitResponse;
+
+  try {
+    data = (await response.json()) as GenerateOutfitResponse;
+  } catch {
+    throw new Error(
+      "The outfit server returned an invalid response. Check the backend terminal for details."
+    );
+  }
 
   if (!response.ok) {
     throw new Error(data.error ?? "Unable to generate the outfit.");
@@ -105,9 +161,11 @@ export default function BuildOutfitPage({
   const [selectedTopIndex, setSelectedTopIndex] = useState(initialTopIndex);
   const [selectedBottomIndex, setSelectedBottomIndex] =
     useState(initialBottomIndex);
+
   const [generatedImageUri, setGeneratedImageUri] = useState<string | null>(
     null
   );
+
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
 
@@ -216,8 +274,8 @@ export default function BuildOutfitPage({
                     {isGenerating
                       ? "Creating Your Look"
                       : generationError
-                      ? "Generation Error"
-                      : "Your Look"}
+                        ? "Generation Error"
+                        : "Your Look"}
                   </Text>
                 </View>
 
@@ -229,7 +287,8 @@ export default function BuildOutfitPage({
                         Generating your outfit...
                       </Text>
                       <Text style={styles.resultHint}>
-                        Matching your selected top and bottom.
+                        This can take a little while. Cher is deciding whether
+                        the outfit is totally fabulous.
                       </Text>
                     </>
                   ) : generationError ? (
@@ -364,276 +423,3 @@ export default function BuildOutfitPage({
     </ImageBackground>
   );
 }
-
-const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    width: "100%",
-    height: "100%",
-  },
-
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: 14,
-    paddingVertical: 14,
-  },
-
-  window: {
-    flex: 1,
-    width: "100%",
-    maxWidth: 640,
-    alignSelf: "center",
-    backgroundColor: "#C0C0C0",
-    borderWidth: 3,
-    borderTopColor: "#FFFFFF",
-    borderLeftColor: "#FFFFFF",
-    borderRightColor: "#000000",
-    borderBottomColor: "#000000",
-    padding: 3,
-  },
-
-  titleBar: {
-    height: 30,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#000080",
-    paddingLeft: 6,
-    paddingRight: 3,
-  },
-
-  titleBarText: {
-    flex: 1,
-    color: "#FFFFFF",
-    fontFamily: WINDOWS_FONT,
-    fontSize: 15,
-    fontWeight: "700",
-  },
-
-  windowControls: {
-    flexDirection: "row",
-    gap: 2,
-  },
-
-  windowControlButton: {
-    width: 22,
-    height: 22,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#C0C0C0",
-    borderWidth: 2,
-    borderTopColor: "#FFFFFF",
-    borderLeftColor: "#FFFFFF",
-    borderRightColor: "#404040",
-    borderBottomColor: "#404040",
-  },
-
-  minimizeSymbol: {
-    color: "#000000",
-    fontFamily: WINDOWS_FONT,
-    fontSize: 14,
-    fontWeight: "900",
-    lineHeight: 15,
-    marginTop: -2,
-  },
-
-  maximizeSymbol: {
-    color: "#000000",
-    fontFamily: WINDOWS_FONT,
-    fontSize: 13,
-    fontWeight: "700",
-    lineHeight: 15,
-  },
-
-  closeSymbol: {
-    color: "#000000",
-    fontFamily: WINDOWS_FONT,
-    fontSize: 17,
-    fontWeight: "700",
-    lineHeight: 18,
-  },
-
-  menuBar: {
-    height: 30,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#C0C0C0",
-    paddingHorizontal: 8,
-    gap: 18,
-    borderBottomWidth: 1,
-    borderBottomColor: "#808080",
-  },
-
-  menuItem: {
-    color: "#000000",
-    fontFamily: WINDOWS_FONT,
-    fontSize: 12,
-  },
-
-  content: {
-    flex: 1,
-    paddingHorizontal: 12,
-    paddingTop: 12,
-    paddingBottom: 8,
-  },
-
-  carouselStack: {
-    flex: 1,
-    minHeight: 0,
-  },
-
-  carouselGap: {
-    height: 10,
-  },
-
-  actionRow: {
-    height: 42,
-    flexDirection: "row",
-    gap: 10,
-    marginTop: 10,
-  },
-
-  windowsButton: {
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#C0C0C0",
-    borderWidth: 2,
-    borderTopColor: "#FFFFFF",
-    borderLeftColor: "#FFFFFF",
-    borderRightColor: "#404040",
-    borderBottomColor: "#404040",
-    paddingHorizontal: 12,
-  },
-
-  windowsButtonPressed: {
-    borderTopColor: "#404040",
-    borderLeftColor: "#404040",
-    borderRightColor: "#FFFFFF",
-    borderBottomColor: "#FFFFFF",
-    transform: [{ translateX: 1 }, { translateY: 1 }],
-  },
-
-  actionButton: {
-    flex: 1,
-  },
-
-  buttonText: {
-    color: "#000000",
-    fontFamily: WINDOWS_FONT,
-    fontSize: 13,
-  },
-
-  disabledButton: {
-    opacity: 0.45,
-  },
-
-  resultGroup: {
-    flex: 1,
-    minHeight: 0,
-    position: "relative",
-    borderWidth: 1,
-    borderTopColor: "#808080",
-    borderLeftColor: "#808080",
-    borderRightColor: "#FFFFFF",
-    borderBottomColor: "#FFFFFF",
-    padding: 10,
-  },
-
-  groupLabelBackground: {
-    position: "absolute",
-    top: -9,
-    left: 12,
-    zIndex: 2,
-    backgroundColor: "#C0C0C0",
-    paddingHorizontal: 4,
-  },
-
-  groupLabel: {
-    color: "#000000",
-    fontFamily: WINDOWS_FONT,
-    fontSize: 12,
-  },
-
-  resultBody: {
-    flex: 1,
-    minHeight: 0,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#FFFFFF",
-    borderWidth: 2,
-    borderTopColor: "#808080",
-    borderLeftColor: "#808080",
-    borderRightColor: "#FFFFFF",
-    borderBottomColor: "#FFFFFF",
-    padding: 12,
-  },
-
-  resultStatus: {
-    color: "#000000",
-    fontFamily: WINDOWS_FONT,
-    fontSize: 14,
-    fontWeight: "700",
-    marginTop: 12,
-    textAlign: "center",
-  },
-
-  resultHint: {
-    color: "#000000",
-    fontFamily: WINDOWS_FONT,
-    fontSize: 12,
-    lineHeight: 17,
-    marginTop: 7,
-    textAlign: "center",
-  },
-
-  errorMessage: {
-    color: "#800000",
-    fontFamily: WINDOWS_FONT,
-    fontSize: 12,
-    lineHeight: 17,
-    textAlign: "center",
-  },
-
-  generatedImage: {
-    width: "100%",
-    height: "100%",
-    backgroundColor: "#FFFFFF",
-  },
-
-  statusBar: {
-    minHeight: 28,
-    flexDirection: "row",
-    gap: 3,
-    backgroundColor: "#C0C0C0",
-    padding: 3,
-    borderTopWidth: 1,
-    borderTopColor: "#FFFFFF",
-  },
-
-  statusPanel: {
-    flex: 1,
-    justifyContent: "center",
-    borderWidth: 1,
-    borderTopColor: "#808080",
-    borderLeftColor: "#808080",
-    borderRightColor: "#FFFFFF",
-    borderBottomColor: "#FFFFFF",
-    paddingHorizontal: 6,
-  },
-
-  statusPanelSmall: {
-    width: 76,
-    justifyContent: "center",
-    borderWidth: 1,
-    borderTopColor: "#808080",
-    borderLeftColor: "#808080",
-    borderRightColor: "#FFFFFF",
-    borderBottomColor: "#FFFFFF",
-    paddingHorizontal: 6,
-  },
-
-  statusText: {
-    color: "#000000",
-    fontFamily: WINDOWS_FONT,
-    fontSize: 10,
-  },
-});
