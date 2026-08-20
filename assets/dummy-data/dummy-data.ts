@@ -25,10 +25,12 @@ export const dummyData: WardrobeItem[] = [
 
     referencePhotos: {
       front: require("../images/white-button-down.jpeg"),
+      back: require("../images/white-button-down-back.jpeg"),
     },
 
     catalogPhotos: {
       front: require("../images/white-button-down.jpeg"),
+      back: require("../images/white-button-down-back.jpeg"),
     },
   },
 
@@ -39,10 +41,12 @@ export const dummyData: WardrobeItem[] = [
 
     referencePhotos: {
       front: require("../images/black-t-shirt.jpeg"),
+      back: require("../images/black-t-shirt-back.jpeg"),
     },
 
     catalogPhotos: {
       front: require("../images/black-t-shirt.jpeg"),
+      back: require("../images/black-t-shirt-back.jpeg"),
     },
   },
 
@@ -181,10 +185,12 @@ export const dummyData: WardrobeItem[] = [
 
     referencePhotos: {
       front: require("../images/denim-shorts.jpeg"),
+      back: require("../images/denim-shorts-back.jpeg"),
     },
 
     catalogPhotos: {
       front: require("../images/denim-shorts.jpeg"),
+      back: require("../images/denim-shorts-back.jpeg"),
     },
   },
 ];
