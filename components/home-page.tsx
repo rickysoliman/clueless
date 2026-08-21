@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   ImageBackground,
@@ -11,6 +11,7 @@ import {
   View,
 } from "react-native";
 import { dummyData } from "../assets/dummy-data/dummy-data";
+import { supabase } from "../lib/supabase";
 import { homePageStyles as styles } from "../styles/app-styles";
 import AddClothingPage from "./add-clothing-page";
 import BrowseClosetPage, { type ClosetSelection } from "./browse-closet-page";
@@ -80,6 +81,32 @@ export default function HomePage({
   const [tab, setTab] = useState("home");
   const [activeMenu, setActiveMenu] = useState<MenuName | null>(null);
   const [buildSelection, setBuildSelection] = useState<ClosetSelection>({});
+
+  useEffect(() => {
+    async function ensureSupabaseSession() {
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
+      if (sessionError) {
+        console.error("Supabase session error:", sessionError);
+        return;
+      }
+
+      if (session) {
+        return;
+      }
+
+      const { error } = await supabase.auth.signInAnonymously();
+
+      if (error) {
+        console.error("Supabase anonymous sign-in failed:", error);
+      }
+    }
+
+    ensureSupabaseSession();
+  }, []);
 
   const wardrobeItems = dummyData as DummyWardrobeItem[];
 

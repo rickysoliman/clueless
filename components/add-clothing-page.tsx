@@ -13,6 +13,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { saveClothingItem } from "../lib/clothing-items";
 import { palette, addClothingStyles as styles } from "../styles/app-styles";
 
 const leopardPrintBackground = require("../assets/images/leopard-print-background.png");
@@ -265,7 +266,6 @@ export default function AddClothingPage({
         "Name Required",
         "Give this clothing item a name before saving it."
       );
-
       return;
     }
 
@@ -274,57 +274,39 @@ export default function AddClothingPage({
         "Front Photo Required",
         "Add a clear front photo of the garment before saving it."
       );
-
       return;
     }
-
-    const draft: AddClothingDraft = {
-      name: trimmedName,
-      type: itemType,
-      frontPhoto,
-      ...(backPhoto ? { backPhoto } : {}),
-    };
 
     try {
       setIsSaving(true);
 
-      console.log("Uploading clothing item...");
+      const savedItem = await saveClothingItem({
+        name: trimmedName,
+        type: itemType,
+        frontPhoto,
+        ...(backPhoto ? { backPhoto } : {}),
+      });
 
-      const result = await uploadClothingItem(draft);
-
-      console.log("Clothing upload successful:", result);
-
-      /*
-       * This callback will become useful once we add local
-       * closet persistence.
-       */
-      if (onSave) {
-        await onSave(draft);
-
-        onBack();
-
-        return;
-      }
+      console.log("Saved clothing item:", savedItem);
 
       Alert.alert(
-        "Upload Successful!",
+        "Item Saved!",
+        `"${savedItem.name}" has been added to your closet.`,
         [
-          `"${result.received.name}" reached the server successfully.`,
-          "",
-          `Front photo: received`,
-          `Back photo: ${result.received.back ? "received" : "not provided"}`,
-          "",
-          "Nothing has been saved permanently yet. The server deleted its temporary upload after receiving it.",
-        ].join("\n")
+          {
+            text: "OK",
+            onPress: onBack,
+          },
+        ]
       );
     } catch (error) {
-      console.error("Clothing upload failed:", error);
+      console.error("Unable to save clothing item:", error);
 
       Alert.alert(
-        "Unable to Upload Item",
+        "Unable to Save Item",
         error instanceof Error
           ? error.message
-          : "Something went wrong while uploading this clothing item."
+          : "Something went wrong while saving this clothing item."
       );
     } finally {
       setIsSaving(false);
