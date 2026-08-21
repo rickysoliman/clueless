@@ -1512,3 +1512,273 @@ export const itemDetailsStyles = StyleSheet.create({
     marginTop: 12,
   },
 });
+
+export const addClothingStyles = StyleSheet.create({
+  ...win98Base,
+
+  statusPanelSmall: {
+    ...win98Base.statusPanelSmall,
+    width: 118,
+  },
+
+  keyboardArea: {
+    flex: 1,
+  },
+
+  scrollView: {
+    flex: 1,
+    backgroundColor: palette.win98.face,
+  },
+
+  content: {
+    paddingHorizontal: 12,
+    paddingTop: 16,
+    paddingBottom: 20,
+  },
+
+  detailsGroup: {
+    marginBottom: 20,
+  },
+
+  formRow: {
+    minHeight: 42,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  formLabel: {
+    width: 72,
+    color: palette.win98.black,
+    fontFamily: WINDOWS_FONT,
+    fontSize: 12,
+  },
+
+  requiredMarker: {
+    color: palette.win98.maroon,
+    fontWeight: "700",
+  },
+
+  textInput: {
+    flex: 1,
+    minHeight: 34,
+    color: palette.win98.black,
+    backgroundColor: palette.win98.light,
+    borderWidth: 2,
+    borderTopColor: palette.win98.mid,
+    borderLeftColor: palette.win98.mid,
+    borderRightColor: palette.win98.light,
+    borderBottomColor: palette.win98.light,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    fontFamily: WINDOWS_FONT,
+    fontSize: 12,
+  },
+
+  typeButtons: {
+    flex: 1,
+    flexDirection: "row",
+    gap: 6,
+  },
+
+  typeButton: {
+    flex: 1,
+    minHeight: 32,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: palette.win98.face,
+    borderWidth: 2,
+    borderTopColor: palette.win98.light,
+    borderLeftColor: palette.win98.light,
+    borderRightColor: palette.win98.dark,
+    borderBottomColor: palette.win98.dark,
+  },
+
+  typeButtonActive: {
+    backgroundColor: palette.win98.blue,
+    borderTopColor: palette.win98.dark,
+    borderLeftColor: palette.win98.dark,
+    borderRightColor: palette.win98.light,
+    borderBottomColor: palette.win98.light,
+  },
+
+  typeButtonText: {
+    color: palette.win98.black,
+    fontFamily: WINDOWS_FONT,
+    fontSize: 12,
+  },
+
+  typeButtonTextActive: {
+    color: palette.win98.light,
+    fontWeight: "700",
+  },
+
+  helperText: {
+    color: palette.win98.dark,
+    fontFamily: WINDOWS_FONT,
+    fontSize: 10,
+    lineHeight: 15,
+    marginTop: 7,
+    marginLeft: 72,
+  },
+
+  photoIntro: {
+    color: palette.win98.black,
+    fontFamily: WINDOWS_FONT,
+    fontSize: 11,
+    lineHeight: 16,
+    marginBottom: 12,
+  },
+
+  photoGrid: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 8,
+  },
+
+  photoCard: {
+    flex: 1,
+    minWidth: 0,
+  },
+
+  photoCardTitleRow: {
+    height: 24,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: palette.win98.blue,
+    paddingHorizontal: 6,
+  },
+
+  photoCardTitle: {
+    color: palette.win98.light,
+    fontFamily: WINDOWS_FONT,
+    fontSize: 11,
+    fontWeight: "700",
+  },
+
+  optionalText: {
+    color: palette.win98.light,
+    fontFamily: WINDOWS_FONT,
+    fontSize: 9,
+  },
+
+  photoWell: {
+    width: "100%",
+    aspectRatio: 0.82,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+    backgroundColor: palette.win98.light,
+    borderWidth: 2,
+    borderTopColor: palette.win98.mid,
+    borderLeftColor: palette.win98.mid,
+    borderRightColor: palette.win98.light,
+    borderBottomColor: palette.win98.light,
+    padding: 3,
+  },
+
+  photoImage: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: palette.win98.light,
+  },
+
+  photoPlaceholder: {
+    flex: 1,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#D4D0C8",
+    paddingHorizontal: 8,
+  },
+
+  photoPlaceholderIcon: {
+    color: palette.win98.mid,
+    fontFamily: WINDOWS_FONT,
+    fontSize: 38,
+    lineHeight: 42,
+  },
+
+  photoPlaceholderText: {
+    color: palette.win98.dark,
+    fontFamily: WINDOWS_FONT,
+    fontSize: 10,
+    lineHeight: 14,
+    marginTop: 5,
+    textAlign: "center",
+  },
+
+  photoButtonStack: {
+    gap: 5,
+    marginTop: 6,
+  },
+
+  photoButton: {
+    width: "100%",
+    minHeight: 32,
+    paddingHorizontal: 5,
+  },
+
+  smallButtonText: {
+    color: palette.win98.black,
+    fontFamily: WINDOWS_FONT,
+    fontSize: 10,
+    textAlign: "center",
+  },
+
+  removeButtonText: {
+    color: palette.win98.maroon,
+    fontFamily: WINDOWS_FONT,
+    fontSize: 10,
+    fontWeight: "700",
+  },
+
+  tipBox: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginTop: 16,
+    paddingHorizontal: 2,
+  },
+
+  tipIcon: {
+    width: 22,
+    height: 22,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: palette.win98.blue,
+    marginRight: 8,
+  },
+
+  tipIconText: {
+    color: palette.win98.light,
+    fontFamily: WINDOWS_FONT,
+    fontSize: 14,
+    fontWeight: "700",
+  },
+
+  tipText: {
+    flex: 1,
+    color: palette.win98.dark,
+    fontFamily: WINDOWS_FONT,
+    fontSize: 10,
+    lineHeight: 15,
+  },
+
+  formActions: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 16,
+  },
+
+  formActionButton: {
+    flex: 1,
+    minHeight: 38,
+  },
+
+  saveButtonText: {
+    color: palette.win98.black,
+    fontFamily: WINDOWS_FONT,
+    fontSize: 12,
+    fontWeight: "700",
+  },
+});

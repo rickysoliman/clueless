@@ -493,13 +493,7 @@ export default function HomePage({
   }
 
   if (tab === "add") {
-    return (
-      <View style={styles.childPage}>
-        <Pressable onPress={() => setTab("home")}>
-          <AddClothingPage />
-        </Pressable>
-      </View>
-    );
+    return <AddClothingPage onBack={() => setTab("home")} />;
   }
 
   return null;
