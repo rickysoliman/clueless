@@ -17,6 +17,8 @@ import { palette, addClothingStyles as styles } from "../styles/app-styles";
 
 const leopardPrintBackground = require("../assets/images/leopard-print-background.png");
 
+const API_URL = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, "");
+
 export type ClothingType = "top" | "bottom";
 
 export type ClothingReferencePhoto = {
@@ -36,11 +38,40 @@ export type AddClothingDraft = {
 
 type AddClothingPageProps = {
   onBack: () => void;
+
+  /*
+   * We can use this later when we add local closet storage.
+   *
+   * For now, HomePage does not need to pass it.
+   */
   onSave?: (item: AddClothingDraft) => void | Promise<void>;
 };
 
 type PhotoSlot = "front" | "back";
 type PhotoSource = "library" | "camera";
+
+type AddClothingUploadResponse = {
+  success: boolean;
+
+  message: string;
+
+  received: {
+    name: string;
+    type: ClothingType;
+
+    front: {
+      fileName: string;
+      mimeType: string;
+      size: number;
+    };
+
+    back: {
+      fileName: string;
+      mimeType: string;
+      size: number;
+    } | null;
+  };
+};
 
 function createReferencePhoto(
   asset: ImagePicker.ImagePickerAsset
@@ -54,11 +85,49 @@ function createReferencePhoto(
   };
 }
 
+function getFallbackFileName(slot: PhotoSlot, mimeType: string | null) {
+  if (mimeType === "image/png") {
+    return `${slot}.png`;
+  }
+
+  if (mimeType === "image/webp") {
+    return `${slot}.webp`;
+  }
+
+  if (mimeType === "image/heic" || mimeType === "image/heif") {
+    return `${slot}.heic`;
+  }
+
+  return `${slot}.jpg`;
+}
+
+function appendPhotoToFormData(
+  formData: FormData,
+  fieldName: PhotoSlot,
+  photo: ClothingReferencePhoto
+) {
+  /*
+   * React Native's FormData implementation understands an object
+   * containing uri, name, and type as a file upload.
+   *
+   * TypeScript's browser FormData definitions don't know about the
+   * React Native file object, hence the `as any`.
+   */
+  formData.append(fieldName, {
+    uri: photo.uri,
+
+    name: photo.fileName ?? getFallbackFileName(fieldName, photo.mimeType),
+
+    type: photo.mimeType ?? "image/jpeg",
+  } as any);
+}
+
 export default function AddClothingPage({
   onBack,
   onSave,
 }: AddClothingPageProps) {
   const [itemName, setItemName] = useState("");
+
   const [itemType, setItemType] = useState<ClothingType>("top");
 
   const [frontPhoto, setFrontPhoto] = useState<ClothingReferencePhoto | null>(
@@ -78,7 +147,7 @@ export default function AddClothingPage({
   const canSave = trimmedName.length > 0 && Boolean(frontPhoto) && !isSaving;
 
   const statusText = isSaving
-    ? "Saving..."
+    ? "Uploading..."
     : !trimmedName
     ? "Enter a name"
     : !frontPhoto
@@ -97,6 +166,7 @@ export default function AddClothingPage({
             "Camera Permission Required",
             "Cher AI needs camera access to photograph your clothing."
           );
+
           return;
         }
 
@@ -143,12 +213,59 @@ export default function AddClothingPage({
     setBackPhoto(null);
   }
 
+  async function uploadClothingItem(
+    draft: AddClothingDraft
+  ): Promise<AddClothingUploadResponse> {
+    if (!API_URL) {
+      throw new Error("EXPO_PUBLIC_API_URL is not configured.");
+    }
+
+    const formData = new FormData();
+
+    formData.append("name", draft.name);
+    formData.append("type", draft.type);
+
+    appendPhotoToFormData(formData, "front", draft.frontPhoto);
+
+    if (draft.backPhoto) {
+      appendPhotoToFormData(formData, "back", draft.backPhoto);
+    }
+
+    const response = await fetch(`${API_URL}/add-clothing`, {
+      method: "POST",
+
+      /*
+       * Don't manually set Content-Type here.
+       *
+       * fetch needs to add the multipart boundary itself.
+       */
+      body: formData,
+    });
+
+    let data: any;
+
+    try {
+      data = await response.json();
+    } catch {
+      throw new Error("The server returned an invalid response.");
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        data?.error ?? `Upload failed with status ${response.status}`
+      );
+    }
+
+    return data as AddClothingUploadResponse;
+  }
+
   async function handleSave() {
     if (!trimmedName) {
       Alert.alert(
         "Name Required",
         "Give this clothing item a name before saving it."
       );
+
       return;
     }
 
@@ -157,6 +274,7 @@ export default function AddClothingPage({
         "Front Photo Required",
         "Add a clear front photo of the garment before saving it."
       );
+
       return;
     }
 
@@ -167,26 +285,46 @@ export default function AddClothingPage({
       ...(backPhoto ? { backPhoto } : {}),
     };
 
-    if (!onSave) {
-      Alert.alert(
-        "Item Ready",
-        "The Add Clothing form is working. The next step is connecting Save Item to the wardrobe data and catalog-image generation."
-      );
-      return;
-    }
-
     try {
       setIsSaving(true);
 
-      await onSave(draft);
+      console.log("Uploading clothing item...");
 
-      onBack();
-    } catch (error) {
+      const result = await uploadClothingItem(draft);
+
+      console.log("Clothing upload successful:", result);
+
+      /*
+       * This callback will become useful once we add local
+       * closet persistence.
+       */
+      if (onSave) {
+        await onSave(draft);
+
+        onBack();
+
+        return;
+      }
+
       Alert.alert(
-        "Unable to Save Item",
+        "Upload Successful!",
+        [
+          `"${result.received.name}" reached the server successfully.`,
+          "",
+          `Front photo: received`,
+          `Back photo: ${result.received.back ? "received" : "not provided"}`,
+          "",
+          "Nothing has been saved permanently yet. The server deleted its temporary upload after receiving it.",
+        ].join("\n")
+      );
+    } catch (error) {
+      console.error("Clothing upload failed:", error);
+
+      Alert.alert(
+        "Unable to Upload Item",
         error instanceof Error
           ? error.message
-          : "Something went wrong while saving this clothing item."
+          : "Something went wrong while uploading this clothing item."
       );
     } finally {
       setIsSaving(false);
@@ -199,6 +337,7 @@ export default function AddClothingPage({
     required: boolean
   ) {
     const isFront = slot === "front";
+
     const title = isFront ? "Front" : "Back";
 
     return (
@@ -206,6 +345,7 @@ export default function AddClothingPage({
         <View style={styles.photoCardTitleRow}>
           <Text style={styles.photoCardTitle}>
             {title}
+
             {required && <Text style={styles.requiredMarker}> *</Text>}
           </Text>
 
@@ -215,7 +355,9 @@ export default function AddClothingPage({
         <View style={styles.photoWell}>
           {photo ? (
             <Image
-              source={{ uri: photo.uri }}
+              source={{
+                uri: photo.uri,
+              }}
               resizeMode="contain"
               style={styles.photoImage}
             />
@@ -330,8 +472,11 @@ export default function AddClothingPage({
 
           <View style={styles.menuBar}>
             <Text style={styles.menuItem}>File</Text>
+
             <Text style={styles.menuItem}>Closet</Text>
+
             <Text style={styles.menuItem}>Add Item</Text>
+
             <Text style={styles.menuItem}>Help</Text>
           </View>
 
@@ -471,8 +616,10 @@ export default function AddClothingPage({
 
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel="Save clothing item"
-                  accessibilityState={{ disabled: !canSave }}
+                  accessibilityLabel="Upload clothing item"
+                  accessibilityState={{
+                    disabled: !canSave,
+                  }}
                   disabled={!canSave}
                   onPress={handleSave}
                   style={({ pressed }) => [
@@ -483,7 +630,7 @@ export default function AddClothingPage({
                   ]}
                 >
                   <Text style={styles.saveButtonText}>
-                    {isSaving ? "Saving..." : "Save Item"}
+                    {isSaving ? "Uploading..." : "Save Item"}
                   </Text>
                 </Pressable>
               </View>
